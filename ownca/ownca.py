@@ -301,8 +301,8 @@ class CertificateAuthority:
             return False
 
     def _ca_sign_csr(self, csr, maximum_days=None):
-        if maximum_days is None or 1 < maximum_days > 365:
-            raise ValueError("Value is required: Minimum 1, Maximum 365")
+        if maximum_days is None or 1 < maximum_days > 3096:
+            raise ValueError("Value is required: Minimum 1, Maximum 3096")
         one_day = datetime.timedelta(1, 0, 0)
 
         certificate = x509.CertificateBuilder()
