@@ -10,24 +10,92 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
 from cryptography.x509.oid import NameOID
-import os
 import datetime
+import os
+import re
 import uuid
+
 
 from ._constants import (
     CA_CERT,
     CA_CERTS_DIR,
     CA_KEY,
     CA_PUBLIC_KEY,
+    COUNTRY_REGEX,
     HOSTNAME_REGEX,
+    OIDS
 )
-from .exceptions import InvalidCAFiles, InconsistentCertificateData
-from ._utils import (
+from .exceptions import InconsistentCertificateData, InvalidCAFiles, InvalidOID
+from .utils import (
     ownca_directory,
     file_data_status,
     validate_hostname,
     store_file,
 )
+
+
+def format_oids(oids_parameters):
+    """
+    Format dictionary OIDs to ``cryptography.x509.oid.NameOID`` object list
+
+    :param oids_parameters: oids ``CertificateAuthority``
+    :type oids_parameters: dict, required
+    :return: ``cryptography.x509.oid.NameOID`` object list
+    :rtype: object ``cryptography.x509.oid.NameOID`` object list
+    """
+
+    oids = list()
+    for oid in OIDS:
+        if oid in oids_parameters:
+            current_oid = oids_parameters[oid]
+            if type(current_oid) is not str:
+                raise TypeError(f"\'{oid}\' must be str")
+
+            if oid == "country_name":
+                # country name ISO 3166-1 (alfa-2)
+                if not re.match(COUNTRY_REGEX, current_oid):
+                    raise InvalidOID(f"\'{oid}\' must be ISO 3166-1 (alfa-2)")
+
+                else:
+                    oids.append(
+                        x509.NameAttribute(NameOID.COUNTRY_NAME, current_oid)
+                    )
+
+            elif oid == "locality_name":
+                oids.append(
+                    x509.NameAttribute(NameOID.LOCALITY_NAME, current_oid)
+                )
+
+            elif oid == "state_or_province":
+                oids.append(
+                    x509.NameAttribute(
+                        NameOID.STATE_OR_PROVINCE_NAME, current_oid
+                    )
+                )
+
+            elif oid == "street_address":
+                oids.append(
+                    x509.NameAttribute(NameOID.STREET_ADDRESS, current_oid)
+                )
+
+            elif oid == "organization_name":
+                oids.append(
+                    x509.NameAttribute(NameOID.ORGANIZATION_NAME, current_oid)
+                )
+
+            elif oid == "organization_unit_name":
+                oids.append(
+                    x509.NameAttribute(
+                        NameOID.ORGANIZATIONAL_UNIT_NAME, current_oid
+                    )
+                )
+
+            elif oid == "email_address":
+                oids.append(
+                    x509.NameAttribute(NameOID.EMAIL_ADDRESS, current_oid)
+                )
+
+    return oids
 
 
 class CertificateAuthority:
@@ -38,17 +106,32 @@ class CertificateAuthority:
 
     :param ca_storage: path where CA files and hosts files are stored. Default
         is None ``os.getcwd()``
-    :type ca_storage: str, required when there is no CA.
-    :param common_name: Common Name for CA, *required when there is no CA
-    :type common_name: str, optional
+    :type ca_storage: str, required when there is no CA
+    :param common_name: Common Name for CA
+    :type common_name: str, required when there is no CA
     :param dns_names: List of DNS names
-    :type dns_names: list of strings, optional.
-    :param country: CA country. Two letters that define country. Example: NL
-    :type country: str
+    :type dns_names: list of strings, optional
+    :param oids: CA Object Identifiers (OIDs). The are typically seen in
+        X.509 names.
+        Allowed keys/values:
+        ``'country_name': str (two letters)``,
+        ``'locality_name': str``,
+        ``'state_or_province': str``,
+        ``'street_address': str``,
+        ``'organization_name': str``,
+        ``'organization_unit_name': str``,
+        ``'email_address': str``,
+    :type oids: dict, optional, all keys are optional
     """
 
     def __init__(self, ca_storage=None, common_name=None, **kwargs):
         """Constructor method"""
+
+        if "oids" in kwargs:
+            self.oids = format_oids(kwargs["oids"])
+
+        else:
+            self.oids = list()
 
         self._common_name = common_name
         if not ca_storage:
@@ -61,7 +144,7 @@ class CertificateAuthority:
 
         if self.current_ca_status is True:
 
-            self._certificate, self._key, self._public_key = self._initialize()
+            self._certificate, self._key, self._public_key = self.initialize()
             current_cn_object = self._certificate.subject.rfc4514_string()
             self._common_name = current_cn_object.split("CN=")[-1]
 
@@ -72,7 +155,7 @@ class CertificateAuthority:
                     + "there is no CA available."
                 )
 
-            self._certificate, self._key, self._public_key = self._initialize(
+            self._certificate, self._key, self._public_key = self.initialize(
                 common_name=common_name
             )
 
@@ -153,7 +236,7 @@ class CertificateAuthority:
             Private key bytes,
             ``cryptography.hazmat.backends.openssl.rsa.RSAPublicKey``,
             Public key bytes
-        )
+            )
         """
         key = rsa.generate_private_key(
             backend=default_backend(),
@@ -185,14 +268,13 @@ class CertificateAuthority:
         host=False,
     ):
 
-        if maximum_days is None or 1 < maximum_days > 365:
-            raise ValueError("Value is required: Minimum 1, Maximum 365")
+        if maximum_days is None or 1 < maximum_days > 3096:
+            raise ValueError("Value is required: Minimum 1, Maximum 3096")
+        self.oids.append(x509.NameAttribute(NameOID.COMMON_NAME, common_name))
 
         one_day = datetime.timedelta(1, 0, 0)
         builder = x509.CertificateBuilder()
-        builder = builder.subject_name(
-            x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
-        )
+        builder = builder.subject_name(x509.Name(self.oids))
         if host:
             builder = builder.issuer_name(
                 x509.Name(
@@ -261,12 +343,12 @@ class CertificateAuthority:
         else:
             return False
 
-    def _csr(self, key=None, common_name=None, dns_names=None):
+    def _csr(self, key=None, common_name=None, dns_names=None, oids=None):
 
         csr_builder = x509.CertificateSigningRequestBuilder()
-        csr_builder = csr_builder.subject_name(
-            x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
-        )
+
+        oids.append(x509.NameAttribute(NameOID.COMMON_NAME, common_name))
+        csr_builder = csr_builder.subject_name(x509.Name(oids))
 
         if dns_names is not None:
             if type(dns_names) is not list:
@@ -409,7 +491,7 @@ class CertificateAuthority:
 
         return certificate, key, public_key
 
-    def _initialize(
+    def initialize(
         self,
         common_name=None,
         dns_names=None,
@@ -421,6 +503,7 @@ class CertificateAuthority:
     ):
         """
         Initialize the Certificate Authority (CA)
+
         :param common_name: CA Common Name (CN)
         :type common_name: str, required
         :param dns_names:
@@ -487,7 +570,8 @@ class CertificateAuthority:
             raise TypeError(self.status)
 
     def issue_certificate(
-        self, hostname, maximum_days=30, common_name=None, dns_names=None
+        self, hostname, maximum_days=30, common_name=None, dns_names=None,
+        oids=None
     ):
 
         if not validate_hostname(hostname):
@@ -529,8 +613,15 @@ class CertificateAuthority:
             store_file(host_key, host_key_path, permission=0o600)
             store_file(host_public_key, host_public_path)
 
+            if oids:
+                oids = format_oids(oids)
+
+            else:
+                oids = list()
+
             csr = self._csr(
-                key=key, common_name=common_name, dns_names=dns_names
+                key=key, common_name=common_name, dns_names=dns_names,
+                oids=oids
             )
 
             store_file(

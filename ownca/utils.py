@@ -135,6 +135,7 @@ def validate_hostname(hostname):
 def store_file(file_data, file_path, permission=None):
     """
     Stores (write) files in the storage
+
     :param file_data: the file data
     :type file_data: str, required
     :param file_path: the file absolute path

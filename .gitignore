@@ -25,12 +25,8 @@ env/
 .pytest_cache/
 .vscode/
 .eggs/
-
 .workon
-
 t.py
-
 t2.py
 dist
-
 /.mypy_cache/

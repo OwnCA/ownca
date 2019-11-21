@@ -7,7 +7,7 @@ Copyright (c) 2018, 2019 Kairo de Araujo
 __title__ = "ownca"
 __description__ = "Python Own Certificate Authority"
 __url__ = "https://github.com/kairoaraujo/ownca"
-__version__ = "0.0.1-alpha2"
+__version__ = "0.0.1-alpha3"
 __author__ = "Kairo de Araujo"
 __author_email__ = "kairo@dearaujo.nl"
 __license__ = "Apache 2.0"

@@ -13,3 +13,4 @@ flake8 = "*"
 
 [packages]
 cryptography = "*"
+iso3166 = "*"
