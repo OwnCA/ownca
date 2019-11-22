@@ -4,14 +4,6 @@ ownca package
 Submodules
 ----------
 
-ownca.constants module
-----------------------
-
-.. automodule:: ownca.constants
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 ownca.exceptions module
 -----------------------
 
