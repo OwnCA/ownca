@@ -1,4 +1,5 @@
-# Python Own Certificate Authority (ownca)
+Python Own Certificate Authority (ownca)
+========================================
 
 ownca make easy to handle a Certificate Authority (CA) and manage certificates
 for hosts or clients.
@@ -22,11 +23,9 @@ Basically in this three steps we did:
 More detailed usage can be found in [http://ownca.readthedocs.org](http://ownca.readthedocs.org,)
 
 
-## Installation
+Installation
+============
 
 ```shell
 pip install ownca
 ```
-
-
-
