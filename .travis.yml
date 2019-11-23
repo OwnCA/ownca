@@ -5,16 +5,5 @@ install: "make"
 script:
   - make all-tests
 cache: pip
-jobs:
-  include:
-    - stage: test
-      python: '3.5'
-    - stage: test
-      python: '3.6'
-    - stage: test
-      python: '3.7'
-    - stage: test
-      python: '3.8'
-    - stage: coverage
-      python: '3.7'
-      script: codecov
+after_success:
+  - codecov
