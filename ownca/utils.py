@@ -18,6 +18,30 @@ from ._constants import (
 )
 
 
+def file_data_status(ca_status):
+    """
+    Verify the CA status based in the existent files.
+
+    :param ca_status: dict current ca_status file dictionary: ownca_directory()
+    :return: bool or None
+    """
+    key = ca_status["key"]
+    cert = ca_status["certificate"]
+
+    # this check if the CA has the key and certificates files in disk
+    # if both are true, means the health status is True
+    if key == cert and key is True:
+        return True
+
+    # if certificate and key does not match and one of then are True, is not ok
+    elif key != cert and key or cert:
+        return False
+
+    # in that case, the system has not a CA configured.
+    else:
+        return None
+
+
 def _create_ownca_dir(ownca_dir):
     """
     Creates the CA directory.
@@ -32,9 +56,6 @@ def _create_ownca_dir(ownca_dir):
 
     except (FileExistsError, OSError, FileNotFoundError) as err:
         raise err
-
-    finally:
-        return False
 
 
 def ownca_directory(ca_storage):
@@ -90,51 +111,6 @@ def ownca_directory(ca_storage):
     return ownca_status
 
 
-def file_data_status(ca_status):
-    """
-    Verify the CA status based in the existent files.
-
-    :param ca_status: dict current ca_status file dictionary: ownca_directory()
-    :return: bool or None
-    """
-    key = ca_status["key"]
-    cert = ca_status["certificate"]
-
-    # this check if the CA has the key and certificates files in disk
-    # if both are true, means the health status is True
-    if key == cert and key is True:
-        return True
-
-    # if certificate and key does not match and one of then are True, is not ok
-    elif key != cert and key or cert:
-        return False
-
-    # in that case, the system has not a CA configured.
-    else:
-        return None
-
-
-def validate_hostname(hostname):
-    """
-    Validates if the hostname follows the common Internet rules for FQDN
-
-    :param hostname: string hostname
-    :type hostname: sting, required
-    :return: bool
-    :rtype: bool
-    """
-
-    if type(hostname) is not str:
-        return False
-
-    if len(hostname) < 1 or len(hostname) > 253:
-        return False
-
-    ldh_re = re.compile(f"{HOSTNAME_REGEX}", re.IGNORECASE)
-
-    return all(ldh_re.match(x) for x in hostname.split("."))
-
-
 def store_file(file_data, file_path, permission=None):
     """
     Stores (write) files in the storage
@@ -162,3 +138,24 @@ def store_file(file_data, file_path, permission=None):
         raise err
 
     return True
+
+
+def validate_hostname(hostname):
+    """
+    Validates if the hostname follows the common Internet rules for FQDN
+
+    :param hostname: string hostname
+    :type hostname: sting, required
+    :return: bool
+    :rtype: bool
+    """
+
+    if type(hostname) is not str:
+        return False
+
+    if len(hostname) < 1 or len(hostname) > 253:
+        return False
+
+    ldh_re = re.compile(f"{HOSTNAME_REGEX}", re.IGNORECASE)
+
+    return all(ldh_re.match(x) for x in hostname.split("."))
