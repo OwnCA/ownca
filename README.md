@@ -1,3 +1,9 @@
+[![Build Status](https://travis-ci.org/kairoaraujo/ownca.svg?branch=master)](https://travis-ci.org/kairoaraujo/ownca)
+[![Documentation Status](https://readthedocs.org/projects/ownca/badge/?version=latest)](https://ownca.readthedocs.io/en/latest/?badge=latest)
+[![codecov](https://codecov.io/gh/kairoaraujo/ownca/branch/master/graph/badge.svg)](https://codecov.io/gh/kairoaraujo/ownca)
+[![pypi](https://img.shields.io/pypi/v/ownca.svg)](https://pypi.python.org/pypi/ownca)
+[![pypi](https://img.shields.io/pypi/l/ownca.svg)](https://pypi.python.org/pypi/ownca)
+
 Python Own Certificate Authority (ownca)
 ========================================
 

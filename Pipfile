@@ -9,6 +9,8 @@ coverage = "*"
 tox = "*"
 flake8 = "*"
 codecov = "*"
+sphinx = "*"
+sphinx-rtd-theme = "*"
 
 [packages]
 cryptography = "*"
