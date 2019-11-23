@@ -8,7 +8,7 @@ all-tests:
 	coverage xml
 
 py36-tests:
-	tox -re py33,pep8
+	tox -re py36,pep8
 
 py37-tests:
 	tox -re py37,pep8

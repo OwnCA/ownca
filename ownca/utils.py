@@ -124,7 +124,10 @@ def validate_hostname(hostname):
     :rtype: bool
     """
 
-    if len(hostname) < 1 or len(hostname) > 253 or type(hostname) is not str:
+    if type(hostname) is not str:
+        return False
+
+    if len(hostname) < 1 or len(hostname) > 253:
         return False
 
     ldh_re = re.compile(f"{HOSTNAME_REGEX}", re.IGNORECASE)
