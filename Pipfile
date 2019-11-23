@@ -5,11 +5,10 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
-sphinx = "*"
 coverage = "*"
-sphinx-rtd-theme = "*"
 tox = "*"
 flake8 = "*"
+codecov = "*"
 
 [packages]
 cryptography = "*"

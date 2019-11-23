@@ -4,6 +4,7 @@
 Copyright (c) 2018, 2019 Kairo de Araujo
 """
 
+# CA Private dir
 CA_PRIVATE_DIR = f"private"
 CA_CERTS_DIR = f"certs"
 

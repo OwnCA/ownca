@@ -10,6 +10,11 @@ Welcome to ownca's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+.. toctree::
+    :maxdepth: 2
+    :caption: The recipes layer
+
+    ownca
 
 
 Indices and tables
