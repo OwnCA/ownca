@@ -48,12 +48,6 @@ Basically, ownca uses the powerful library
    :maxdepth: 2
    :caption: Contents:
 
-.. toctree::
-    :maxdepth: 2
-    :caption: The recipes layer
-
-    ownca
-
 
 Indices and tables
 ==================
