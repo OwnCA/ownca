@@ -315,27 +315,16 @@ class CertificateAuthority:
                 else:
                     raise TypeError("All DNS Names must to be string values.")
 
-        if host:
-            builder = builder.add_extension(
-                x509.BasicConstraints(ca=True, path_length=None), critical=True
-            )
-            certificate = builder.sign(
-                private_key=self._key,
-                algorithm=hashes.SHA256(),
-                backend=default_backend(),
-            )
+        builder = builder.add_extension(
+            x509.BasicConstraints(ca=True, path_length=None),
+            critical=True,
+        )
 
-        else:
-            builder = builder.add_extension(
-                x509.BasicConstraints(ca=False, path_length=None),
-                critical=True,
-            )
-
-            certificate = builder.sign(
-                private_key=key,
-                algorithm=hashes.SHA256(),
-                backend=default_backend(),
-            )
+        certificate = builder.sign(
+            private_key=key,
+            algorithm=hashes.SHA256(),
+            backend=default_backend(),
+        )
 
         if isinstance(certificate, x509.Certificate):
             return certificate
@@ -368,7 +357,7 @@ class CertificateAuthority:
                     raise TypeError("All DNS Names must to be string values.")
 
         csr_builder = csr_builder.add_extension(
-            x509.BasicConstraints(ca=True, path_length=None), critical=False
+            x509.BasicConstraints(ca=False, path_length=None), critical=False
         )
         csr = csr_builder.sign(
             private_key=key,
@@ -382,7 +371,7 @@ class CertificateAuthority:
         else:
             return False
 
-    def _ca_sign_csr(self, csr, maximum_days=None):
+    def _ca_sign_csr(self, csr, key, maximum_days=None):
         if maximum_days is None or 1 < maximum_days > 3096:
             raise ValueError("Value is required: Minimum 1, Maximum 3096")
         one_day = datetime.timedelta(1, 0, 0)
@@ -413,12 +402,12 @@ class CertificateAuthority:
             critical=True,
         )
         certificate = certificate.add_extension(
-            extension=x509.BasicConstraints(ca=True, path_length=None),
+            extension=x509.BasicConstraints(ca=False, path_length=None),
             critical=True,
         )
         certificate = certificate.add_extension(
             extension=x509.AuthorityKeyIdentifier.from_issuer_public_key(
-                self._key.public_key()
+                key.public_key()
             ),
             critical=False,
         )
@@ -629,7 +618,9 @@ class CertificateAuthority:
                 host_csr_path,
             )
 
-            certificate = self._ca_sign_csr(csr, maximum_days=maximum_days)
+            certificate = self._ca_sign_csr(
+                csr, key, maximum_days=maximum_days
+            )
 
             store_file(
                 certificate.public_bytes(encoding=serialization.Encoding.PEM),

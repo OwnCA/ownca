@@ -33,8 +33,7 @@ The ownca was created in 2017 as a group of scripts to manage certificates, in
 2018 it was moved to a very simple library (mostly hardcoded actions) and now
 in 2019 was decide to open and be a library that could help others.
 
-Basically, ownca uses the powerful library
-[http://cryptography.io](http://cryptography.io) .
+Basically, ownca uses the powerful library http://cryptography.io .
 
 
 .. toctree::

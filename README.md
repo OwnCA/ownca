@@ -26,7 +26,7 @@ Basically in this three steps we did:
  3. We created signed certificates by *Corp CA* for server *mycorp*, the server
  files are also stored in ```/opt/CA/certs/mycorp```.
 
-More detailed usage can be found in [http://ownca.readthedocs.org](http://ownca.readthedocs.org,)
+More detailed usage can be found in [http://ownca.readthedocs.org](http://ownca.readthedocs.org)
 
 
 Installation
