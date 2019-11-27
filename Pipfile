@@ -14,4 +14,3 @@ sphinx-rtd-theme = "*"
 
 [packages]
 cryptography = "*"
-iso3166 = "*"

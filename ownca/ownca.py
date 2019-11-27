@@ -220,6 +220,22 @@ class CertificateAuthority:
 
         return self._common_name
 
+    @property
+    def get_hash_name(self):
+        """
+        Get the CA hash name
+        :return: CA hash name
+        :rtype: str
+        """
+
+        return format(
+            self._certificate._backend._lib.X509_NAME_hash(
+                self._certificate._backend._lib.X509_get_issuer_name(
+                    self._certificate._x509
+                )
+            ), 'x'
+        )
+
     @staticmethod
     def generate_key(public_exponent=65537, key_size=2048):
         """
