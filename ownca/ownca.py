@@ -373,7 +373,7 @@ class CertificateAuthority:
                     raise TypeError("All DNS Names must to be string values.")
 
         csr_builder = csr_builder.add_extension(
-            x509.BasicConstraints(ca=False, path_length=None), critical=False
+            x509.BasicConstraints(ca=True, path_length=None), critical=False
         )
         csr = csr_builder.sign(
             private_key=key,
@@ -418,7 +418,7 @@ class CertificateAuthority:
             critical=True,
         )
         certificate = certificate.add_extension(
-            extension=x509.BasicConstraints(ca=False, path_length=None),
+            extension=x509.BasicConstraints(ca=True, path_length=None),
             critical=True,
         )
         certificate = certificate.add_extension(
