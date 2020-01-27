@@ -43,7 +43,7 @@ def test_file_data_status_case_none():
 def test__create_ownca_dir(mock_os):
 
     mock_os.mkdir.return_value = True
-    assert _create_ownca_dir("test_dir")
+    assert _create_ownca_dir("test_dir") is None
 
 
 @mock.patch("ownca.utils.os")
@@ -54,6 +54,7 @@ def test__create_ownca_dir_case_exceptions(mock_os):
         OSError,
         FileNotFoundError
     ]
+    mock_os.path.isdir.return_value = False
     mock_os.mkdir.side_effect = exceptions
 
     for exception in exceptions:
@@ -96,7 +97,7 @@ def test_store_file(mock_open, mock_os):
 def test_store_file_case_oserror(mock_os, mock_open):
     mock_os.path.isfile.return_value = True
     mock_open.side_effect = [OSError]
-    mock_os.chmod.side_effect = OSError
+    mock_os.chmod.side_effect = [OSError]
 
     with pytest.raises(OSError):
         assert store_file(b"data", "test_dir")
