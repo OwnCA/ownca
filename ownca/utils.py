@@ -49,10 +49,9 @@ def _create_ownca_dir(ownca_dir):
     :param ownca_dir: :string: full path directory for ownca
     :return: bool
     """
-
     try:
-        os.mkdir(ownca_dir)
-        return True
+        if not os.path.isdir(ownca_dir):
+            os.mkdir(ownca_dir)
 
     except (FileExistsError, OSError, FileNotFoundError) as err:
         raise err
