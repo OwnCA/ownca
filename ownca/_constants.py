@@ -13,7 +13,7 @@ CA_KEY = f"{CA_PRIVATE_DIR}/ca_key.pem"
 CA_PUBLIC_KEY = f"ca_key.pub"
 
 OIDS = [
-    "country_name", "locality_name", "state_or_province", "street_address"
+    "country_name", "locality_name", "state_or_province", "street_address",
     "organization_name", "organization_unit_name", "email_address"
 ]
 
