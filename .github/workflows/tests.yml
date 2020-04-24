@@ -29,13 +29,9 @@ jobs:
 
     # Runs Python tests
     - name: Run Python tests
-      run: make py37-tests
-
-    - name: Install docs dependecies
-      run: pip install -r docs/requirements.txt
-
-    - name: Run Docs tests
-      run: make docs
+      run: |
+      make py37-tests
+      coverage xml -i
 
     - uses: actions/checkout@master
     - uses: codecov/codecov-action@v1
@@ -43,3 +39,9 @@ jobs:
         flags: unittests
         name: coverage
         fail_ci_if_error: true
+
+    - name: Install docs dependecies
+      run: pip install -r docs/requirements.txt
+
+    - name: Run Docs tests
+      run: make docs
