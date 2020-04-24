@@ -11,10 +11,10 @@ from ownca.ownca import CertificateAuthority
 @pytest.fixture
 def ownca_directory():
     ownca_directory_return = {
-        'certificate': False,
-        'key': False,
-        'public_key': False,
-        'ca_home': 'fake_dir'
+        "certificate": False,
+        "key": False,
+        "public_key": False,
+        "ca_home": "fake_dir",
     }
 
     return ownca_directory_return
@@ -29,7 +29,7 @@ def oids_sample():
         "street_address": "Rua Agostinho Martins de Oliveira",
         "organization_name": "First home",
         "organization_unit_name": "Good memories",
-        "email_address": "kairo at ..."
+        "email_address": "kairo at ...",
     }
 
     return sample_oids
@@ -62,16 +62,25 @@ def fake_csr():
 @mock.patch("ownca.ownca.file_data_status")
 @mock.patch("ownca.ownca.os")
 def certificateauthority(
-    mock_os, mock_file_data_status, mock_ownca_directory,
-    mock_keys, mock_store_file, mock_ca_certificate,
-    ownca_directory, oids_sample, fake_certificate
+    mock_os,
+    mock_file_data_status,
+    mock_ownca_directory,
+    mock_keys,
+    mock_store_file,
+    mock_ca_certificate,
+    ownca_directory,
+    oids_sample,
+    fake_certificate,
 ):
     mock_os.getcwd.return_value = "FAKE_CA"
     mock_file_data_status.return_value = None
     mock_ownca_directory.return_value = ownca_directory
 
     mock_keys.generate.return_value = (
-        "key", "private_key", "pem_key", "public_key"
+        "key",
+        "private_key",
+        "pem_key",
+        "public_key",
     )
 
     mock_store_file.return_value = True

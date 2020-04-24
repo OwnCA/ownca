@@ -29,4 +29,4 @@ def test_generate(mock_rsa, mock__get_public_key):
 
     result = generate()
     assert isinstance(result[0], classmethod)
-    assert result[1:] == ('private_key', 'pem_public_key', 'public_key')
+    assert result[1:] == ("private_key", "pem_public_key", "public_key")

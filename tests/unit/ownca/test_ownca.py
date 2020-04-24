@@ -9,13 +9,10 @@ from ownca.ownca import CertificateAuthority, format_oids, load_cert_files
 from ownca.exceptions import (
     InvalidOID,
     InvalidCAFiles,
-    InconsistentCertificateData
+    InconsistentCertificateData,
 )
 
-sample_file_data_status_return = {
-    "key": True,
-    "certificate": True
-}
+sample_file_data_status_return = {"key": True, "certificate": True}
 
 
 @mock.patch("ownca.ownca.x509")
@@ -88,9 +85,17 @@ def test_load_cert_files_inconsistent_certificate_data(
 @mock.patch("ownca.ownca.os")
 @mock.patch("builtins.format")
 def test_certificateauthority_properties(
-    mock_format, mock_os, mock_file_data_status, mock_ownca_directory,
-    mock_keys, mock_store_file, mock_format_oids, mock_ca_certificate,
-    ownca_directory, fake_certificate, oids_sample
+    mock_format,
+    mock_os,
+    mock_file_data_status,
+    mock_ownca_directory,
+    mock_keys,
+    mock_store_file,
+    mock_format_oids,
+    mock_ca_certificate,
+    ownca_directory,
+    fake_certificate,
+    oids_sample,
 ):
     mock_os.getcwd.return_value = "FAKE_CA"
     mock_file_data_status.return_value = None
@@ -98,7 +103,10 @@ def test_certificateauthority_properties(
     mock_format_oids.return_value = list(oids_sample.values())
 
     mock_keys.generate.return_value = (
-        "key", "private_key", "pem_key", "public_key"
+        "key",
+        "private_key",
+        "pem_key",
+        "public_key",
     )
 
     mock_store_file.return_value = True
@@ -124,16 +132,25 @@ def test_certificateauthority_properties(
 @mock.patch("ownca.ownca.os")
 @mock.patch("builtins.format")
 def test_certificateauthority_ca_storage(
-        mock_format, mock_os, mock_file_data_status, mock_ownca_directory,
-        mock_keys, mock_store_file, mock_ca_certificate,
-        ownca_directory, fake_certificate
+    mock_format,
+    mock_os,
+    mock_file_data_status,
+    mock_ownca_directory,
+    mock_keys,
+    mock_store_file,
+    mock_ca_certificate,
+    ownca_directory,
+    fake_certificate,
 ):
     mock_os.getcwd.return_value = "FAKE_CA"
     mock_file_data_status.return_value = None
     mock_ownca_directory.return_value = ownca_directory
 
     mock_keys.generate.return_value = (
-        "key", "private_key", "pem_key", "public_key"
+        "key",
+        "private_key",
+        "pem_key",
+        "public_key",
     )
 
     mock_store_file.return_value = True
@@ -160,16 +177,19 @@ def test_certificateauthority_ca_storage(
 @mock.patch("ownca.ownca.os")
 @mock.patch("builtins.format")
 def test_certificateauthority_already_exists(
-        mock_format, mock_os, mock_file_data_status, mock_ownca_directory,
-        mock__load_cert_keys, ownca_directory, fake_certificate
+    mock_format,
+    mock_os,
+    mock_file_data_status,
+    mock_ownca_directory,
+    mock__load_cert_keys,
+    ownca_directory,
+    fake_certificate,
 ):
     mock_os.getcwd.return_value = "FAKE_CA"
     mock_file_data_status.return_value = True
     mock_ownca_directory.return_value = ownca_directory
 
-    mock__load_cert_keys.return_value = (
-        fake_certificate, "key", "public_key"
-    )
+    mock__load_cert_keys.return_value = (fake_certificate, "key", "public_key")
 
     ownca = CertificateAuthority(
         common_name="fake-ca.com", ca_storage="FAKE_STORAGE"
@@ -190,16 +210,18 @@ def test_certificateauthority_already_exists(
 @mock.patch("ownca.ownca.file_data_status")
 @mock.patch("ownca.ownca.os")
 def test_certificateauthority_already_exists_raises_invalidcafiles(
-    mock_os, mock_file_data_status, mock_ownca_directory,
-    mock__load_cert_keys, ownca_directory, fake_certificate
+    mock_os,
+    mock_file_data_status,
+    mock_ownca_directory,
+    mock__load_cert_keys,
+    ownca_directory,
+    fake_certificate,
 ):
     mock_os.getcwd.return_value = "FAKE_CA"
     mock_file_data_status.return_value = False
     mock_ownca_directory.return_value = ownca_directory
 
-    mock__load_cert_keys.return_value = (
-        fake_certificate, "key", "public_key"
-    )
+    mock__load_cert_keys.return_value = (fake_certificate, "key", "public_key")
 
     with pytest.raises(InvalidCAFiles):
         CertificateAuthority(
@@ -213,16 +235,18 @@ def test_certificateauthority_already_exists_raises_invalidcafiles(
 @mock.patch("ownca.ownca.file_data_status")
 @mock.patch("ownca.ownca.os")
 def test_certificateauthority_not_expected_current_ca_status(
-    mock_os, mock_file_data_status, mock_ownca_directory,
-    mock__load_cert_keys, ownca_directory, fake_certificate
+    mock_os,
+    mock_file_data_status,
+    mock_ownca_directory,
+    mock__load_cert_keys,
+    ownca_directory,
+    fake_certificate,
 ):
     mock_os.getcwd.return_value = "FAKE_CA"
     mock_file_data_status.return_value = "I Don't Know"
     mock_ownca_directory.return_value = ownca_directory
 
-    mock__load_cert_keys.return_value = (
-        fake_certificate, "key", "public_key"
-    )
+    mock__load_cert_keys.return_value = (fake_certificate, "key", "public_key")
 
     with pytest.raises(TypeError):
         CertificateAuthority(
@@ -251,9 +275,16 @@ def test_certificateauthority__init__exc_no_common_name(
 @mock.patch("ownca.ownca.keys")
 @mock.patch("ownca.ownca.os")
 def test_test_certificateauthority_issue_certificate(
-    mock_os, mock_keys, mock_store_file, mock_format_oids, mock_issue_csr,
-    mock_ca_sign_csr, certificateauthority, fake_certificate, fake_csr,
-    oids_sample
+    mock_os,
+    mock_keys,
+    mock_store_file,
+    mock_format_oids,
+    mock_issue_csr,
+    mock_ca_sign_csr,
+    certificateauthority,
+    fake_certificate,
+    fake_csr,
+    oids_sample,
 ):
 
     my_fake_ca = certificateauthority
@@ -262,7 +293,10 @@ def test_test_certificateauthority_issue_certificate(
     mock_os.path.isdir.return_value = False
     mock_os.mkdir.return_value = True
     mock_keys.generate.return_value = (
-        "key", "private_key", "pem_key", "public_key"
+        "key",
+        "private_key",
+        "pem_key",
+        "public_key",
     )
     mock_store_file.return_value = True
     mock_issue_csr.return_value = fake_csr
@@ -284,8 +318,14 @@ def test_test_certificateauthority_issue_certificate(
 @mock.patch("ownca.ownca.keys")
 @mock.patch("ownca.ownca.os")
 def test_test_certificateauthority_issue_certificate_without_oids(
-    mock_os, mock_keys, mock_store_file, mock_issue_csr, mock_ca_sign_csr,
-    certificateauthority, fake_certificate, fake_csr,
+    mock_os,
+    mock_keys,
+    mock_store_file,
+    mock_issue_csr,
+    mock_ca_sign_csr,
+    certificateauthority,
+    fake_certificate,
+    fake_csr,
 ):
 
     my_fake_ca = certificateauthority
@@ -293,7 +333,10 @@ def test_test_certificateauthority_issue_certificate_without_oids(
     mock_os.path.isdir.return_value = False
     mock_os.mkdir.return_value = True
     mock_keys.generate.return_value = (
-        "key", "private_key", "pem_key", "public_key"
+        "key",
+        "private_key",
+        "pem_key",
+        "public_key",
     )
     mock_store_file.return_value = True
     mock_issue_csr.return_value = fake_csr
@@ -322,15 +365,16 @@ def test_test_certificateauthority_issue_certificate_invalid_hostname(
 @mock.patch("ownca.ownca.load_cert_files")
 @mock.patch("ownca.ownca.os")
 def test_test_certificateauthority_issue_certificate_existent(
-    mock_os, mock__load_cert_keys, certificateauthority,
-    fake_certificate
+    mock_os, mock__load_cert_keys, certificateauthority, fake_certificate
 ):
 
     my_fake_ca = certificateauthority
 
     mock_os.return_value = True
     mock__load_cert_keys.return_value = (
-        fake_certificate, "private_key", "public_key"
+        fake_certificate,
+        "private_key",
+        "public_key",
     )
 
     my_fake_cert = my_fake_ca.issue_certificate("host.fake-ca.com")

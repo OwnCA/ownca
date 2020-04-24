@@ -6,15 +6,19 @@ from unittest import mock
 import pytest
 
 from ownca.crypto.cert import (
-    issue_cert, issue_csr, ca_sign_csr, _valid_cert, _valid_csr, x509
+    issue_cert,
+    issue_csr,
+    ca_sign_csr,
+    _valid_cert,
+    _valid_csr,
+    x509,
 )
 
 
 @mock.patch("ownca.crypto.cert.x509")
 @mock.patch("ownca.crypto.cert._valid_cert")
 def test_issue_cert(
-    mock__valid_certificate, mock_x509, oids_sample,
-    fake_certificate
+    mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
 
     mock_x509.NameAttribute.return_value = oids_sample
@@ -28,8 +32,7 @@ def test_issue_cert(
 @mock.patch("ownca.crypto.cert.x509")
 @mock.patch("ownca.crypto.cert._valid_cert")
 def test_issue_cert_with_dns_names(
-    mock__valid_certificate, mock_x509, oids_sample,
-    fake_certificate
+    mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
 
     mock_x509.NameAttribute.return_value = oids_sample
@@ -45,8 +48,7 @@ def test_issue_cert_with_dns_names(
 @mock.patch("ownca.crypto.cert.x509")
 @mock.patch("ownca.crypto.cert._valid_cert")
 def test_issue_cert_with_bad_dns_names(
-    mock__valid_certificate, mock_x509, oids_sample,
-    fake_certificate
+    mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
 
     mock_x509.NameAttribute.return_value = oids_sample
@@ -54,17 +56,13 @@ def test_issue_cert_with_bad_dns_names(
 
     with pytest.raises(TypeError) as excinfo:
 
-        issue_cert(
-            ["OID"], maximum_days=1, dns_names="www.fake-ca.com"
-        )
+        issue_cert(["OID"], maximum_days=1, dns_names="www.fake-ca.com")
 
         assert "All DNS Names must to be string values." in excinfo.value
 
     with pytest.raises(TypeError) as excinfo:
 
-        issue_cert(
-            ["OID"], maximum_days=1, dns_names=[123, "www.fake-ca.com"]
-        )
+        issue_cert(["OID"], maximum_days=1, dns_names=[123, "www.fake-ca.com"])
 
         assert "dns_names require a list of strings." in excinfo.value
 
@@ -72,8 +70,7 @@ def test_issue_cert_with_bad_dns_names(
 @mock.patch("ownca.crypto.cert.x509")
 @mock.patch("ownca.crypto.cert._valid_cert")
 def test_issue_cert_host(
-    mock__valid_certificate, mock_x509, oids_sample,
-    fake_certificate
+    mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
 
     mock_x509.NameAttribute.return_value = oids_sample
@@ -87,8 +84,7 @@ def test_issue_cert_host(
 @mock.patch("ownca.crypto.cert.x509")
 @mock.patch("ownca.crypto.cert._valid_cert")
 def test_issue_cert_without_maximum_days(
-    mock__valid_certificate, mock_x509, oids_sample,
-    fake_certificate
+    mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
 
     mock_x509.NameAttribute.return_value = oids_sample
@@ -134,17 +130,13 @@ def test_issue_csr_with_bad_dns_names(
 
     with pytest.raises(TypeError) as excinfo:
 
-        issue_csr(
-            oids=["OID"], dns_names="www.fake-ca.com"
-        )
+        issue_csr(oids=["OID"], dns_names="www.fake-ca.com")
 
         assert "All DNS Names must to be string values." in excinfo.value
 
     with pytest.raises(TypeError) as excinfo:
 
-        issue_csr(
-            oids=["OID"], dns_names=[123, "www.fake-ca.com"]
-        )
+        issue_csr(oids=["OID"], dns_names=[123, "www.fake-ca.com"])
 
         assert "dns_names require a list of strings." in excinfo.value
 
@@ -152,8 +144,7 @@ def test_issue_csr_with_bad_dns_names(
 @mock.patch("ownca.crypto.cert.x509")
 @mock.patch("ownca.crypto.cert._valid_cert")
 def test_ca_sign_csr_without_maximum_days(
-    mock__valid_certificate, mock_x509, oids_sample,
-    fake_certificate
+    mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
 
     mock_x509.subject_name.return_value = oids_sample
@@ -168,8 +159,7 @@ def test_ca_sign_csr_without_maximum_days(
 @mock.patch("ownca.crypto.cert.x509")
 @mock.patch("ownca.crypto.cert._valid_cert")
 def test_ca_sign_csr(
-    mock__valid_certificate, mock_x509, oids_sample,
-    fake_certificate
+    mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
 
     mocked_csr = mock.MagicMock()
@@ -206,4 +196,3 @@ def test_valid_csr():
 def test_valid_csr_false():
     fake_csr = mock.MagicMock(spec=dict)
     assert _valid_csr(fake_csr) is False
-

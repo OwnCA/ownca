@@ -29,25 +29,18 @@ def _valid_csr(csr):
 
 
 def issue_cert(
-        oids,
-        maximum_days=None,
-        key=None,
-        pem_public_key=None,
-        ca_common_name=None,
-        common_name=None,
-        dns_names=None,
-        host=False,
+    oids,
+    maximum_days=None,
+    key=None,
+    pem_public_key=None,
+    ca_common_name=None,
+    common_name=None,
+    dns_names=None,
+    host=False,
 ):
-
     def _issuer_dns_subjectaltname(builder, name):
         builder = builder.issuer_name(
-            x509.Name(
-                [
-                    x509.NameAttribute(
-                        NameOID.COMMON_NAME, name
-                    )
-                ]
-            )
+            x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, name)])
         )
 
         if dns_names is not None:
@@ -70,8 +63,7 @@ def issue_cert(
 
         else:
             builder = builder.add_extension(
-                x509.SubjectAlternativeName(name),
-                critical=False,
+                x509.SubjectAlternativeName(name), critical=False
             )
 
         return builder
@@ -99,14 +91,11 @@ def issue_cert(
     builder = builder.public_key(pem_public_key)
 
     builder = builder.add_extension(
-        x509.BasicConstraints(ca=True, path_length=None),
-        critical=True,
+        x509.BasicConstraints(ca=True, path_length=None), critical=True
     )
 
     certificate = builder.sign(
-        private_key=key,
-        algorithm=hashes.SHA256(),
-        backend=default_backend(),
+        private_key=key, algorithm=hashes.SHA256(), backend=default_backend()
     )
 
     return _valid_cert(certificate)
@@ -128,8 +117,7 @@ def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
                 for dns_name in dns_names:
                     x509_dns_names.append(x509.DNSName(dns_name))
                 csr_builder = csr_builder.add_extension(
-                    x509.SubjectAlternativeName(x509_dns_names),
-                    critical=False,
+                    x509.SubjectAlternativeName(x509_dns_names), critical=False
                 )
 
             else:
@@ -139,9 +127,7 @@ def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
         x509.BasicConstraints(ca=True, path_length=None), critical=False
     )
     csr = csr_builder.sign(
-        private_key=key,
-        algorithm=hashes.SHA256(),
-        backend=default_backend(),
+        private_key=key, algorithm=hashes.SHA256(), backend=default_backend()
     )
 
     return _valid_csr(csr)

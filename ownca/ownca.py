@@ -21,7 +21,7 @@ from ._constants import (
     CA_PUBLIC_KEY,
     COUNTRY_REGEX,
     HOSTNAME_REGEX,
-    OIDS
+    OIDS,
 )
 from .exceptions import InconsistentCertificateData, InvalidCAFiles, InvalidOID
 from .utils import (
@@ -46,12 +46,12 @@ def format_oids(oids_parameters):
         if oid in oids_parameters:
             current_oid = oids_parameters[oid]
             if type(current_oid) is not str:
-                raise TypeError(f"\'{oid}\' must be str")
+                raise TypeError(f"'{oid}' must be str")
 
             if oid == "country_name":
                 # country name ISO 3166-1 (alfa-2)
                 if not re.match(COUNTRY_REGEX, current_oid):
-                    raise InvalidOID(f"\'{oid}\' must be ISO 3166-1 (alfa-2)")
+                    raise InvalidOID(f"'{oid}' must be ISO 3166-1 (alfa-2)")
 
                 else:
                     oids.append(
@@ -100,9 +100,7 @@ def load_cert_files(common_name, key_file, public_key_file, certificate_file):
     with open(certificate_file, "rb") as cert_f:
         cert_data = cert_f.read()
 
-    certificate = x509.load_pem_x509_certificate(
-        cert_data, default_backend()
-    )
+    certificate = x509.load_pem_x509_certificate(cert_data, default_backend())
 
     current_cn_name = certificate.subject.rfc4514_string().split("CN=")[-1]
 
@@ -264,7 +262,8 @@ class CertificateAuthority:
                 self._certificate._backend._lib.X509_get_issuer_name(
                     self._certificate._x509
                 )
-            ), 'x'
+            ),
+            "x",
         )
 
     def initialize(
@@ -341,8 +340,12 @@ class CertificateAuthority:
             raise TypeError(self.status)
 
     def issue_certificate(
-        self, hostname, maximum_days=30, common_name=None, dns_names=None,
-        oids=None
+        self,
+        hostname,
+        maximum_days=30,
+        common_name=None,
+        dns_names=None,
+        oids=None,
     ):
         if not validate_hostname(hostname):
             raise TypeError(
@@ -390,8 +393,10 @@ class CertificateAuthority:
                 oids = list()
 
             csr = issue_csr(
-                key=key, common_name=common_name, dns_names=dns_names,
-                oids=oids
+                key=key,
+                common_name=common_name,
+                dns_names=dns_names,
+                oids=oids,
             )
 
             store_file(
@@ -400,8 +405,11 @@ class CertificateAuthority:
             )
 
             certificate = ca_sign_csr(
-                self.get_certificate, self.get_key, csr, key,
-                maximum_days=maximum_days
+                self.get_certificate,
+                self.get_key,
+                csr,
+                key,
+                maximum_days=maximum_days,
             )
 
             store_file(
