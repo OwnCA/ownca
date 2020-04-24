@@ -5,7 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
-coverage = "*"
+coverage = "==5.1"
 tox = "*"
 flake8 = "*"
 codecov = "*"
