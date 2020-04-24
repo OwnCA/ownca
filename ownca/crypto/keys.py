@@ -1,7 +1,18 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Copyright (c) 2020 Kairo de Araujo
+"""
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
+
+
+def _get_public_key(key):
+    return key.public_key().public_bytes(
+        serialization.Encoding.OpenSSH, serialization.PublicFormat.OpenSSH
+    )
 
 
 def generate(public_exponent=65537, key_size=2048):
@@ -35,8 +46,6 @@ def generate(public_exponent=65537, key_size=2048):
 
     pem_public_key = key.public_key()
 
-    public_key = key.public_key().public_bytes(
-        serialization.Encoding.OpenSSH, serialization.PublicFormat.OpenSSH
-    )
+    public_key = _get_public_key(key)
 
     return key, private_key, pem_public_key, public_key

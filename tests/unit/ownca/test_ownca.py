@@ -1,6 +1,7 @@
-#
-# Copyright (c) 2019 Kairo de Araujo
-#
+# -*- coding: utf-8 -*-
+"""
+Copyright (c) 2019-2020 Kairo de Araujo
+"""
 from unittest import mock
 import pytest
 
@@ -78,7 +79,7 @@ def test_load_cert_files_inconsistent_certificate_data(
         assert "not-ca.com" in excinfo.value
 
 
-@mock.patch("ownca.ownca.ca_certificate")
+@mock.patch("ownca.ownca.issue_cert")
 @mock.patch("ownca.ownca.format_oids")
 @mock.patch("ownca.ownca.store_file")
 @mock.patch("ownca.ownca.keys")
@@ -115,7 +116,7 @@ def test_certificateauthority_properties(
     assert ownca.get_hash_name == "abcdef0123456789"
 
 
-@mock.patch("ownca.ownca.ca_certificate")
+@mock.patch("ownca.ownca.issue_cert")
 @mock.patch("ownca.ownca.store_file")
 @mock.patch("ownca.ownca.keys")
 @mock.patch("ownca.ownca.ownca_directory")
@@ -152,7 +153,7 @@ def test_certificateauthority_ca_storage(
     assert ownca.get_hash_name == "abcdef0123456789"
 
 
-@mock.patch("ownca.ownca.ca_certificate")
+@mock.patch("ownca.ownca.issue_cert")
 @mock.patch("ownca.ownca.load_cert_files")
 @mock.patch("ownca.ownca.ownca_directory")
 @mock.patch("ownca.ownca.file_data_status")
@@ -183,7 +184,7 @@ def test_certificateauthority_already_exists(
     assert ownca.get_hash_name == "abcdef0123456789"
 
 
-@mock.patch("ownca.ownca.ca_certificate")
+@mock.patch("ownca.ownca.issue_cert")
 @mock.patch("ownca.ownca.load_cert_files")
 @mock.patch("ownca.ownca.ownca_directory")
 @mock.patch("ownca.ownca.file_data_status")
@@ -206,7 +207,7 @@ def test_certificateauthority_already_exists_raises_invalidcafiles(
         )
 
 
-@mock.patch("ownca.ownca.ca_certificate")
+@mock.patch("ownca.ownca.issue_cert")
 @mock.patch("ownca.ownca.load_cert_files")
 @mock.patch("ownca.ownca.ownca_directory")
 @mock.patch("ownca.ownca.file_data_status")

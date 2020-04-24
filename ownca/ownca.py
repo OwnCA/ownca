@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Copyright (c) 2018, 2019 Kairo de Araujo
+Copyright (c) 2018-2020 Kairo de Araujo
 """
 
 
@@ -13,7 +13,7 @@ import os
 import re
 
 from .crypto import keys
-from .crypto.cert import ca_certificate, issue_csr, ca_sign_csr
+from .crypto.cert import issue_cert, issue_csr, ca_sign_csr
 from ._constants import (
     CA_CERT,
     CA_CERTS_DIR,
@@ -313,7 +313,7 @@ class CertificateAuthority:
             store_file(private_key, private_ca_key_file, permission=0o600)
             store_file(public_key, public_ca_key_file)
 
-            certificate = ca_certificate(
+            certificate = issue_cert(
                 oids=self.oids,
                 maximum_days=maximum_days,
                 key=key,

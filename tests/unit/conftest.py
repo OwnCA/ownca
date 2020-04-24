@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+"""
+Copyright (c) 2020 Kairo de Araujo
+"""
 import pytest
 from unittest import mock
 
@@ -51,7 +55,7 @@ def fake_csr():
 
 
 @pytest.fixture()
-@mock.patch("ownca.ownca.ca_certificate")
+@mock.patch("ownca.ownca.issue_cert")
 @mock.patch("ownca.ownca.store_file")
 @mock.patch("ownca.ownca.keys")
 @mock.patch("ownca.ownca.ownca_directory")
@@ -75,3 +79,18 @@ def certificateauthority(
     mock_ca_certificate.return_value = fake_certificate
 
     return CertificateAuthority(common_name="fake-ca.com", oids=oids_sample)
+
+
+@pytest.fixture
+def x509_certificate_builder(fake_certificate):
+    mocked_builder = mock.MagicMock()
+    mocked_builder.subject_name.return_value = mocked_builder
+    mocked_builder.issuer_name.return_value = mocked_builder
+    mocked_builder.not_valid_before.return_value = mocked_builder
+    mocked_builder.not_valid_after.return_value = mocked_builder
+    mocked_builder.serial_number.return_value = mocked_builder
+    mocked_builder.public_key.return_value = mocked_builder
+    mocked_builder.add_extension.return_value = mocked_builder
+    mocked_builder.sign.return_value = fake_certificate
+
+    return mocked_builder
