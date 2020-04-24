@@ -1,4 +1,3 @@
-
 [![Build Status](https://github.com/OwnCA/ownca/workflows/Tests/badge.svg)](https://github.com/OwnCA/ownca/actions?query=workflow%3ATests)
 [![Documentation Status](https://readthedocs.org/projects/ownca/badge/?version=latest)](https://ownca.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/kairoaraujo/ownca/branch/master/graph/badge.svg)](https://codecov.io/gh/kairoaraujo/ownca)
