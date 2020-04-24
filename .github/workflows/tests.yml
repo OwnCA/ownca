@@ -31,6 +31,9 @@ jobs:
     - name: Run Python tests
       run: make py37-tests
 
+    - name: Install docks dependecies
+      run: pip install -r docs/requirements.txt
+
     - name: Run Docs tests
       run: make docs
 
