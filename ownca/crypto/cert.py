@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Copyright (c) 2020 Kairo de Araujo
+"""
+
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
@@ -6,7 +12,23 @@ import datetime
 import uuid
 
 
-def ca_certificate(
+def _valid_cert(certificate):
+    if isinstance(certificate, x509.Certificate):
+        return certificate
+
+    else:
+        return False
+
+
+def _valid_csr(csr):
+    if isinstance(csr, x509.CertificateSigningRequest):
+        return csr
+
+    else:
+        return False
+
+
+def issue_cert(
         oids,
         maximum_days=None,
         key=None,
@@ -16,52 +38,65 @@ def ca_certificate(
         dns_names=None,
         host=False,
 ):
+
+    def _issuer_dns_subjectaltname(builder, name):
+        builder = builder.issuer_name(
+            x509.Name(
+                [
+                    x509.NameAttribute(
+                        NameOID.COMMON_NAME, name
+                    )
+                ]
+            )
+        )
+
+        if dns_names is not None:
+            if type(dns_names) is not list:
+                raise TypeError("dns_names require a list of strings.")
+
+            if len(dns_names) != 0:
+                if all(isinstance(item, str) for item in dns_names):
+                    x509_dns_names = []
+                    for dns_name in dns_names:
+                        x509_dns_names.append(x509.DNSName(dns_name))
+
+                    builder = builder.add_extension(
+                        x509.SubjectAlternativeName(x509_dns_names),
+                        critical=False,
+                    )
+
+                else:
+                    raise TypeError("All DNS Names must to be string values.")
+
+        else:
+            builder = builder.add_extension(
+                x509.SubjectAlternativeName(name),
+                critical=False,
+            )
+
+        return builder
+
     if maximum_days is None or 1 < maximum_days > 3096:
-        raise ValueError("Value is required: Minimum 1, Maximum 3096")
+        raise ValueError("maximum_days is required: Minimum 1, Maximum 3096")
+
     oids.append(x509.NameAttribute(NameOID.COMMON_NAME, common_name))
 
     one_day = datetime.timedelta(1, 0, 0)
     builder = x509.CertificateBuilder()
     builder = builder.subject_name(x509.Name(oids))
+
     if host:
-        builder = builder.issuer_name(
-            x509.Name(
-                [
-                    x509.NameAttribute(
-                        NameOID.COMMON_NAME, ca_common_name
-                    )
-                ]
-            )
-        )
+        builder = _issuer_dns_subjectaltname(builder, ca_common_name)
+
     else:
-        builder = builder.issuer_name(
-            x509.Name(
-                [x509.NameAttribute(NameOID.COMMON_NAME, common_name)]
-            )
-        )
+        builder = _issuer_dns_subjectaltname(builder, common_name)
+
     builder = builder.not_valid_before(datetime.datetime.today() - one_day)
     builder = builder.not_valid_after(
         datetime.datetime.today() + (one_day * maximum_days)
     )
     builder = builder.serial_number(x509.random_serial_number())
     builder = builder.public_key(pem_public_key)
-
-    if dns_names is not None:
-        if type(dns_names) is not list:
-            raise TypeError("dns_names require a list of strings.")
-
-        if len(dns_names) != 0:
-            if all(isinstance(item, str) for item in dns_names):
-                x509_dns_names = []
-                for dns_name in dns_names:
-                    x509_dns_names.append(x509.DNSName(dns_name))
-                builder = builder.add_extension(
-                    x509.SubjectAlternativeName(x509_dns_names),
-                    critical=False,
-                )
-
-            else:
-                raise TypeError("All DNS Names must to be string values.")
 
     builder = builder.add_extension(
         x509.BasicConstraints(ca=True, path_length=None),
@@ -74,11 +109,7 @@ def ca_certificate(
         backend=default_backend(),
     )
 
-    if isinstance(certificate, x509.Certificate):
-        return certificate
-
-    else:
-        return False
+    return _valid_cert(certificate)
 
 
 def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
@@ -113,11 +144,7 @@ def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
         backend=default_backend(),
     )
 
-    if isinstance(csr, x509.CertificateSigningRequest):
-        return csr
-
-    else:
-        return False
+    return _valid_csr(csr)
 
 
 def ca_sign_csr(ca_cert, ca_key, csr, key, maximum_days=None):
@@ -166,8 +193,4 @@ def ca_sign_csr(ca_cert, ca_key, csr, key, maximum_days=None):
         backend=default_backend(),
     )
 
-    if isinstance(certificate, x509.Certificate):
-        return certificate
-
-    else:
-        return False
+    return _valid_cert(certificate)
