@@ -29,12 +29,10 @@ jobs:
 
     # Runs Python tests
     - name: Run Python tests
-      run: |
-      make py37-tests
-      coverage xml -i
+      run: make py37-tests
 
-    - uses: actions/checkout@master
-    - uses: codecov/codecov-action@v1
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
       with:
         flags: unittests
         name: coverage
