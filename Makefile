@@ -6,18 +6,22 @@ init:
 all-tests:
 	tox -r
 	coverage xml -i
+	coverage html -i
 
 py36-tests:
 	tox -re py36,pep8
 	coverage xml -i
+	coverage html -i
 
 py37-tests:
 	tox -re py37,pep8
 	coverage xml -i
+	coverage html -i
 
 py38-tests:
 	tox -re py38,pep8
 	coverage xml -i
+	coverage html -i
 
 publish:
 	pip install 'twine>=1.5.0'

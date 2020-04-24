@@ -94,10 +94,9 @@ def test_store_file(mock_open, mock_os):
 
 @mock.patch("ownca.utils.os")
 @mock.patch("builtins.open")
-def test_store_file_case_oserror(mock_os, mock_open):
-    mock_os.path.isfile.return_value = True
-    mock_open.side_effect = [OSError]
-    mock_os.chmod.side_effect = [OSError]
+def test_store_file_case_oserror(mock_open, mock_os):
+    mock_os.path.isfile.return_value = False
+    mock_open.side_effect = OSError
 
     with pytest.raises(OSError):
         assert store_file(b"data", "test_dir")
