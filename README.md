@@ -7,7 +7,7 @@
 Python Own Certificate Authority (ownca)
 ========================================
 
-ownca makes easy handle a Certificate Authority (CA) and manage certificates
+OwnCA makes easy handle a Certificate Authority (CA) and manage certificates
 for hosts or clients.
 
 A high level usage is
@@ -26,7 +26,8 @@ Basically in this three steps we did:
  3. Create a signed certificates by *Corp CA* server *mycorp*, the server
  files are also stored in ```/opt/CA/certs/mycorp```.
 
-More detailed usage can be found in [http://ownca.readthedocs.org](http://ownca.readthedocs.org)
+More detailed usage can be found in [http://ownca.readthedocs.org](
+http://ownca.readthedocs.org)
 
 
 Installation

@@ -4,14 +4,14 @@
 Copyright (c) 2018-2020 Kairo de Araujo
 """
 
-# CA Private dir
+# CA directories and files
 CA_PRIVATE_DIR = f"private"
 CA_CERTS_DIR = f"certs"
-
 CA_CERT = f"ca.crt"
 CA_KEY = f"{CA_PRIVATE_DIR}/ca_key.pem"
 CA_PUBLIC_KEY = f"ca_key.pub"
 
+# Supported OIDS
 OIDS = [
     "country_name",
     "locality_name",
@@ -22,6 +22,8 @@ OIDS = [
     "email_address",
 ]
 
+
+# Regular Expressions
 COUNTRY_REGEX = "^(A(D|E|F|G|I|L|M|N|O|R|S|T|Q|U|W|X|Z)|B(A|B|D|E|F|G|H|I|J|\
                 L|M|N|O|R|S|T|V|W|Y|Z)|C(A|C|D|F|G|H|I|K|L|M|N|O|R|U|V|X|Y|Z\
                 )|D(E|J|K|M|O|Z)|E(C|E|G|H|R|S|T)|F(I|J|K|M|O|R)|G(A|B|D|E|F\

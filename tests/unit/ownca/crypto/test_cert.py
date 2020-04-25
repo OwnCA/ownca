@@ -185,7 +185,7 @@ def test_valid_cert():
 
 def test_valid_cert_false():
     fake_cert = mock.MagicMock(spec=dict)
-    assert _valid_cert(fake_cert) is False
+    assert _valid_cert(fake_cert) is None
 
 
 def test_valid_csr():
@@ -195,4 +195,4 @@ def test_valid_csr():
 
 def test_valid_csr_false():
     fake_csr = mock.MagicMock(spec=dict)
-    assert _valid_csr(fake_csr) is False
+    assert _valid_csr(fake_csr) is None

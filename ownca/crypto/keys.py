@@ -10,6 +10,16 @@ from cryptography.hazmat.backends import default_backend
 
 
 def _get_public_key(key):
+    """
+    Extract the public key from key object as string.
+        ``cryptography.hazmat.backends.openssl.rsa``
+
+    :param key: key object ``cryptography.hazmat.backends.openssl.rsa``
+    :type key: object, required.
+
+    :return: public key as string
+    :rtype: string
+    """
     return key.public_key().public_bytes(
         serialization.Encoding.OpenSSH, serialization.PublicFormat.OpenSSH
     )
@@ -23,6 +33,7 @@ def generate(public_exponent=65537, key_size=2048):
     :type public_exponent: int, optional, Default: 65537
     :param key_size: Key size
     :type key_size: int, optional, Default: 2048
+
     :return: RSA Private Key class, Private key bytes,
         RSA Public Key classes, Public key bytes
     :rtype: tuple, (

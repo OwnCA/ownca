@@ -13,19 +13,40 @@ import uuid
 
 
 def _valid_cert(certificate):
+    """
+    Validate if the Certificate object is correct.
+    https://cryptography.io/en/latest/x509/reference/
+
+    :param certificate: certificate object ``cryptography.x509.Certificate``
+    :type certificate: object, required.
+
+    :return: certificate object when valid
+    :rtype: ``cryptography.x509.Certificate`` or None
+    """
     if isinstance(certificate, x509.Certificate):
         return certificate
 
     else:
-        return False
+        return None
 
 
 def _valid_csr(csr):
+    """
+    Validate if the Certificate Signing Request.
+    https://cryptography.io/en/latest/x509/reference/
+
+    :param csr: Certificate Signing Request object
+        ``cryptography.x509.CertificateSigningRequest``
+    :type cs: object, required.
+
+    :return: certificate object when valid
+    :rtype: ``cryptography.x509.Certificate`` or None
+    """
     if isinstance(csr, x509.CertificateSigningRequest):
         return csr
 
     else:
-        return False
+        return None
 
 
 def issue_cert(
@@ -38,9 +59,46 @@ def issue_cert(
     dns_names=None,
     host=False,
 ):
-    def _issuer_dns_subjectaltname(builder, name):
+    """
+    Issue a new certificate
+
+    :param oids: list of OID Objects (``cryptography.x509.oid.NameOID``)
+        or None. See ``ownca.format_oids``.
+    :type oids: list, required.
+    :param maximum_days: number of maximum days of certificate (expiration)
+    :type maximum_days: int, required, min 1 max 3096.
+    :param key: key object ``cryptography.hazmat.backends.openssl.rsa``
+    :type key: object, required.
+    :param pem_public_key: PEM public key object
+        ``cryptography.hazmat.backends.openssl.rsa.public_key()``.
+    :type pem_public_key: object, required.
+    :param ca_common_name: Certificate Authority Common Name when issuing cert.
+    :type ca_common_name: string, optional.
+    :param common_name: Common Name when issuing Certificate Authority cert.
+    :type common_name: string, optional.
+    :param dns_names: list of DNS names to the cert.
+    :type dns_names: list of strings.
+    :param host: Issuing a host certificate.
+    :type host: bool, default True.
+
+    :return: certificate object
+    :rtype: ``cryptography.x509.Certificate``
+    """
+    def _issuer_dns_subjectaltname(builder, c_name):
+        """
+        Add DNS Name (``cryptography.x509.DNSName``) and Subject Alternative
+        Name (``cryptography.x509.SubjectAlternativeName``) to the certificate
+        object.
+
+        :param builder: the initiated builder ``x509.CertificateBuilder()``.
+        :type builder: object, required.
+        :param c_name: common name.
+        :type c_name: str, required.
+
+        :return: builder object ``x509.CertificateBuilder()``
+        """
         builder = builder.issuer_name(
-            x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, name)])
+            x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, c_name)])
         )
 
         if dns_names is not None:
@@ -63,7 +121,7 @@ def issue_cert(
 
         else:
             builder = builder.add_extension(
-                x509.SubjectAlternativeName(name), critical=False
+                x509.SubjectAlternativeName(c_name), critical=False
             )
 
         return builder
@@ -102,6 +160,22 @@ def issue_cert(
 
 
 def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
+    """
+    Issue a new CSR (Certificate Signing Request)
+
+    :param key: key object ``cryptography.hazmat.backends.openssl.rsa``
+    :type key: object, required.
+    :param common_name: Common Name when issuing Certificate Authority cert.
+    :type common_name: string, optional.
+    :param dns_names: list of DNS names to the cert.
+    :type dns_names: list of strings.
+    :param oids: list of OID Objects (``cryptography.x509.oid.NameOID``)
+        or None. See ``ownca.format_oids``.
+    :type oids: list, required.
+
+    :return: certificate sigining request object
+    :rtype: ``cryptography.x509.CertificateSigningRequest``
+    """
     csr_builder = x509.CertificateSigningRequestBuilder()
 
     oids.append(x509.NameAttribute(NameOID.COMMON_NAME, common_name))
@@ -134,6 +208,22 @@ def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
 
 
 def ca_sign_csr(ca_cert, ca_key, csr, key, maximum_days=None):
+    """
+    Sign a Certificate Signing Request
+
+    :param ca_cert: CA certificate object ``cryptography.x509.Certificate``
+    :type ca_cert: object, required.
+    :param ca_key: CA key object ``cryptography.hazmat.backends.openssl.rsa``
+    :type ca_key: object, required.
+    :param csr: CSR object ``cryptography.x509.CertificateSigningRequest``
+    :type csr: object, required.
+    :param key: key object ``cryptography.hazmat.backends.openssl.rsa``
+    :param maximum_days: number of maximum days of certificate (expiration)
+    :type maximum_days: int, required, min 1 max 3096.
+
+    :return: certificate object
+    :rtype: ``cryptography.x509.Certificate``
+    """
     if maximum_days is None or 1 < maximum_days > 3096:
         raise ValueError("Value is required: Minimum 1, Maximum 3096")
     one_day = datetime.timedelta(1, 0, 0)
@@ -169,6 +259,7 @@ def ca_sign_csr(ca_cert, ca_key, csr, key, maximum_days=None):
     )
     certificate = certificate.add_extension(
         extension=x509.AuthorityKeyIdentifier.from_issuer_public_key(
+            # TODO: Do not ask for the key but Public Key only.
             key.public_key()
         ),
         critical=False,

@@ -150,11 +150,20 @@ class CertificateAuthority:
         ``'organization_name': str``,
         ``'organization_unit_name': str``,
         ``'email_address': str``,
+    :param public_exponent: Public Exponent
+    :type public_exponent: int, default: 65537
+    :param key_size: Key size
+    :type key_size: int, default: 2048
     :type oids: dict, optional, all keys are optional
     """
 
-    def __init__(self, ca_storage=None, common_name=None, **kwargs):
+    def __init__(
+            self, ca_storage=None, common_name=None, maximum_days=825, **kwargs
+    ):
         """Constructor method"""
+
+        public_exponent = kwargs.get("public_exponent", 65537)
+        key_size = kwargs.get("key_size", 2048)
 
         if "oids" in kwargs:
             self.oids = format_oids(kwargs["oids"])
@@ -185,7 +194,8 @@ class CertificateAuthority:
                 )
 
             self._certificate, self._key, self._public_key = self.initialize(
-                common_name=common_name
+                common_name=common_name, maximum_days=maximum_days,
+                public_exponent=public_exponent, key_size=key_size
             )
 
     @property
@@ -270,24 +280,30 @@ class CertificateAuthority:
         self,
         common_name=None,
         dns_names=None,
-        maximum_days=30,
+        maximum_days=825,
         public_exponent=65537,
         key_size=2048,
-        force=False,
-        **kwargs,
     ):
         """
         Initialize the Certificate Authority (CA)
 
         :param common_name: CA Common Name (CN)
         :type common_name: str, required
-        :param dns_names:
-        :param maximum_days:
-        :param public_exponent:
-        :param key_size:
-        :param force:
-        :param kwargs:
-        :return:
+        :param dns_names: List of DNS names
+        :type dns_names: list of strings, optional
+        :param maximum_days: Certificate maximum days duration
+        :type maximum_days: int, default: 825
+        :param public_exponent: Public Exponent
+        :type public_exponent: int, default: 65537
+        :param key_size: Key size
+        :type key_size: int, default: 2048
+
+        :return: tuple with CA certificate, CA Key and CA Public key
+        :rtype: tuple (
+            ``cryptography.x509.Certificate``,
+            ``cryptography.hazmat.backends.openssl.rsa``,
+            string public key
+        )
         """
         private_ca_key_file = f"{self.ca_storage}/{CA_KEY}"
         public_ca_key_file = f"{self.ca_storage}/{CA_PUBLIC_KEY}"
@@ -342,7 +358,7 @@ class CertificateAuthority:
     def issue_certificate(
         self,
         hostname,
-        maximum_days=30,
+        maximum_days=825,
         common_name=None,
         dns_names=None,
         oids=None,
