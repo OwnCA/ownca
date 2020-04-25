@@ -37,14 +37,15 @@ Basically, ownca uses the powerful library http://cryptography.io .
 
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 4
     :caption: The implementation layer
 
     ownca
+    ownca.crypto
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
    :caption: Contents:
 
 
