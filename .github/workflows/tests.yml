@@ -31,6 +31,7 @@ jobs:
     - name: Run Python tests
       run: make py37-tests
 
+    # Uploads the coverage
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
@@ -38,6 +39,11 @@ jobs:
         name: coverage
         fail_ci_if_error: true
 
+    # Run integration tests:
+    - name: Run Integration tests
+      run: make integration-tests
+
+    # Docs
     - name: Install docs dependecies
       run: pip install -r docs/requirements.txt
 
