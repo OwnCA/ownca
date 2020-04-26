@@ -121,7 +121,8 @@ def issue_cert(
 
         else:
             builder = builder.add_extension(
-                x509.SubjectAlternativeName(c_name), critical=False
+                x509.SubjectAlternativeName([x509.DNSName(c_name)]),
+                critical=False
             )
 
         return builder

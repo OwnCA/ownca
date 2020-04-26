@@ -23,6 +23,9 @@ py38-tests:
 	coverage xml -i
 	coverage html -i
 
+integration-tests:
+	tox -re integrations
+
 publish:
 	pip install 'twine>=1.5.0'
 	python setup.py sdist bdist_wheel
