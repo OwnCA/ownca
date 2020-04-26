@@ -84,6 +84,7 @@ def issue_cert(
     :return: certificate object
     :rtype: ``cryptography.x509.Certificate``
     """
+
     def _issuer_dns_subjectaltname(builder, c_name):
         """
         Add DNS Name (``cryptography.x509.DNSName``) and Subject Alternative
@@ -122,7 +123,7 @@ def issue_cert(
         else:
             builder = builder.add_extension(
                 x509.SubjectAlternativeName([x509.DNSName(c_name)]),
-                critical=False
+                critical=False,
             )
 
         return builder

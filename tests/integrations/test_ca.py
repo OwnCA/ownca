@@ -37,14 +37,14 @@ def test_ca():
 
     clean_test()
     ca = CertificateAuthority(
-        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE,
+        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE
     )
 
     assert ca.status == {
         "certificate": True,
         "key": True,
         "public_key": True,
-        "ca_home": CA_STORAGE
+        "ca_home": CA_STORAGE,
     }
 
     assert isinstance(ca.get_certificate, x509.Certificate)
@@ -52,7 +52,7 @@ def test_ca():
     assert isinstance(ca.get_key, rsa.RSAPrivateKeyWithSerialization)
 
     assert type(ca.get_public_key) == bytes
-    assert ca.get_public_key.startswith(b'ssh-rsa')
+    assert ca.get_public_key.startswith(b"ssh-rsa")
 
     assert ca.get_common_name == CA_COMMON_NAME
 
@@ -64,7 +64,7 @@ def test_ca_load():
 
     clean_test()
     ca = CertificateAuthority(
-        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE,
+        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE
     )
 
     ca_loaded = CertificateAuthority(
@@ -102,7 +102,7 @@ def test_issue_cert():
     )
 
     cert1 = ca.issue_certificate(
-      cert_common_name, maximum_days=30, oids=cert_oids
+        cert_common_name, maximum_days=30, oids=cert_oids
     )
 
     assert isinstance(cert1.get_certificate, x509.Certificate)
@@ -110,7 +110,7 @@ def test_issue_cert():
     assert isinstance(cert1.get_key, rsa.RSAPrivateKeyWithSerialization)
 
     assert type(cert1.get_public_key) == bytes
-    assert cert1.get_public_key.startswith(b'ssh-rsa')
+    assert cert1.get_public_key.startswith(b"ssh-rsa")
 
     assert cert1.get_common_name == cert_common_name
 
@@ -142,7 +142,7 @@ def test_issue_cert_loaded_by_second_ca_instance():
     )
 
     cert1 = ca.issue_certificate(
-      cert_common_name, maximum_days=30, oids=cert_oids
+        cert_common_name, maximum_days=30, oids=cert_oids
     )
 
     assert isinstance(cert1.get_certificate, x509.Certificate)
@@ -150,12 +150,12 @@ def test_issue_cert_loaded_by_second_ca_instance():
     assert isinstance(cert1.get_key, rsa.RSAPrivateKeyWithSerialization)
 
     assert type(cert1.get_public_key) == bytes
-    assert cert1.get_public_key.startswith(b'ssh-rsa')
+    assert cert1.get_public_key.startswith(b"ssh-rsa")
 
     assert cert1.get_common_name == cert_common_name
 
     cert1_loaded = ca_loaded.issue_certificate(
-      cert_common_name, maximum_days=30, oids=cert_oids
+        cert_common_name, maximum_days=30, oids=cert_oids
     )
 
     assert cert1.get_certificate == cert1_loaded.get_certificate

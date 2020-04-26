@@ -102,9 +102,9 @@ def load_cert_files(common_name, key_file, public_key_file, certificate_file):
 
     certificate = x509.load_pem_x509_certificate(cert_data, default_backend())
 
-    current_cn_name = certificate.subject.rfc4514_string().split(
-        "CN="
-    )[-1].split(',')[0]
+    current_cn_name = (
+        certificate.subject.rfc4514_string().split("CN=")[-1].split(",")[0]
+    )
 
     if common_name is not None and common_name != current_cn_name:
         raise InconsistentCertificateData(
@@ -170,7 +170,7 @@ class CertificateAuthority:
     """
 
     def __init__(
-            self, ca_storage=None, common_name=None, maximum_days=825, **kwargs
+        self, ca_storage=None, common_name=None, maximum_days=825, **kwargs
     ):
         """Constructor method"""
 
@@ -193,9 +193,8 @@ class CertificateAuthority:
         self.current_ca_status = file_data_status(self.status)
 
         if self.current_ca_status is True:
-            self._certificate, self._key, self._key_string, self._public_key = (
+            self._certificate, self._key, self._key_string, self._public_key =\
                 self.initialize()
-            )
 
             current_cn_object = self._certificate.subject.rfc4514_string()
             self._common_name = current_cn_object.split("CN=")[-1]
@@ -207,12 +206,13 @@ class CertificateAuthority:
                     + "there is no CA available."
                 )
 
-            self._certificate, self._key, self._key_string, self._public_key = (
-                    self.initialize(
-                        common_name=common_name, maximum_days=maximum_days,
-                        public_exponent=public_exponent, key_size=key_size
+            self._certificate, self._key, self._key_string, self._public_key =\
+                self.initialize(
+                    common_name=common_name,
+                    maximum_days=maximum_days,
+                    public_exponent=public_exponent,
+                    key_size=key_size,
                 )
-            )
 
     @property
     def status(self):
@@ -376,8 +376,10 @@ class CertificateAuthority:
             self._public_key = public_key
 
             return (
-                self._certificate, self._key, self._key_string,
-                self._public_key
+                self._certificate,
+                self._key,
+                self._key_string,
+                self._public_key,
             )
 
         else:
@@ -413,21 +415,19 @@ class CertificateAuthority:
             common_name = hostname
 
         if os.path.isdir(host_cert_dir):
-            certificate, host_key, host_private_key, host_public_key = (
+            certificate, host_key, host_private_key, host_public_key =\
                 load_cert_files(
                     common_name=common_name,
                     key_file=host_key_path,
                     public_key_file=host_public_path,
                     certificate_file=host_cert_path,
                 )
-            )
 
         else:
             os.mkdir(host_cert_dir)
 
-            host_key, host_private_key, host_pem_public_key, host_public_key = (
+            host_key, host_private_key, host_pem_public_key, host_public_key =\
                 keys.generate()
-            )
 
             store_file(host_private_key, host_key_path, permission=0o600)
             store_file(host_public_key, host_public_path)
@@ -464,8 +464,12 @@ class CertificateAuthority:
             )
 
         host = HostCertificate(
-            common_name, files, certificate, host_key, host_public_key,
-            host_private_key
+            common_name,
+            files,
+            certificate,
+            host_key,
+            host_public_key,
+            host_private_key,
         )
 
         return host
@@ -502,7 +506,7 @@ class HostCertificate:
     """
 
     def __init__(
-            self, common_name, files, certificate, key, public_key, key_string
+        self, common_name, files, certificate, key, public_key, key_string
     ):
         """HostCertificate constructor method"""
 

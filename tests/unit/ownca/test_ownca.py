@@ -51,7 +51,7 @@ def test_load_cert_files(
     mock_x509.load_pem_x509_certificate.return_value = fake_certificate
     mock_serialization.load_pem_private_key.return_value = mocked_key
     mocked_public_key = mock.MagicMock()
-    mocked_public_key.public_bytes.return_value = b'ssh-rsa ...'
+    mocked_public_key.public_bytes.return_value = b"ssh-rsa ..."
     mock_serialization.load_ssh_public_key.return_value = mocked_public_key
 
     result = load_cert_files(
@@ -60,7 +60,7 @@ def test_load_cert_files(
 
     assert isinstance(result[0], classmethod)
     assert isinstance(result[1], classmethod)
-    assert result[2:] == ("Key", b'ssh-rsa ...')
+    assert result[2:] == ("Key", b"ssh-rsa ...")
 
 
 @mock.patch("ownca.ownca.serialization")
@@ -198,7 +198,10 @@ def test_certificateauthority_already_exists(
     mock_ownca_directory.return_value = ownca_directory
 
     mock__load_cert_keys.return_value = (
-        fake_certificate, "key", "key_string", "public_key"
+        fake_certificate,
+        "key",
+        "key_string",
+        "public_key",
     )
 
     ownca = CertificateAuthority(
