@@ -23,6 +23,10 @@ jobs:
       with:
         python-version: '3.7'
 
+    # Install dependencies
+    - name: Install tox and coverage
+      run: pip install tox coverage
+
     # Runs Python tests
     - name: Run Python tests
       run: make py37-tests
