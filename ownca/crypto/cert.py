@@ -84,6 +84,7 @@ def issue_cert(
     :return: certificate object
     :rtype: ``cryptography.x509.Certificate``
     """
+
     def _issuer_dns_subjectaltname(builder, c_name):
         """
         Add DNS Name (``cryptography.x509.DNSName``) and Subject Alternative
@@ -121,7 +122,8 @@ def issue_cert(
 
         else:
             builder = builder.add_extension(
-                x509.SubjectAlternativeName(c_name), critical=False
+                x509.SubjectAlternativeName([x509.DNSName(c_name)]),
+                critical=False,
             )
 
         return builder
@@ -133,6 +135,7 @@ def issue_cert(
 
     one_day = datetime.timedelta(1, 0, 0)
     builder = x509.CertificateBuilder()
+
     builder = builder.subject_name(x509.Name(oids))
 
     if host:

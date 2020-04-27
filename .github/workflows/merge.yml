@@ -1,11 +1,11 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Tests
+name: PyPI
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
-  pull_request:
+  push:
     branches: [ master ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -23,10 +23,6 @@ jobs:
       with:
         python-version: '3.7'
 
-    # Install dependencies
-    - name: Install tox and coverage
-      run: pip install tox coverage
-
     # Runs Python tests
     - name: Run Python tests
       run: make py37-tests
@@ -38,14 +34,3 @@ jobs:
         flags: unittests
         name: coverage
         fail_ci_if_error: true
-
-    # Run integration tests:
-    - name: Run Integration tests
-      run: make integration-tests
-
-    # Docs
-    - name: Install docs dependecies
-      run: pip install -r docs/requirements.txt
-
-    - name: Run Docs tests
-      run: make docs

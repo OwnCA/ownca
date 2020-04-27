@@ -102,7 +102,9 @@ def load_cert_files(common_name, key_file, public_key_file, certificate_file):
 
     certificate = x509.load_pem_x509_certificate(cert_data, default_backend())
 
-    current_cn_name = certificate.subject.rfc4514_string().split("CN=")[-1]
+    current_cn_name = (
+        certificate.subject.rfc4514_string().split("CN=")[-1].split(",")[0]
+    )
 
     if common_name is not None and common_name != current_cn_name:
         raise InconsistentCertificateData(
@@ -117,14 +119,24 @@ def load_cert_files(common_name, key_file, public_key_file, certificate_file):
         key_data, password=None, backend=default_backend()
     )
 
+    key_string = key.private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.PKCS8,
+        serialization.NoEncryption(),
+    )
+
     with open(public_key_file, "rb") as pub_key_f:
         pub_key_data = pub_key_f.read()
 
-    public_key = serialization.load_ssh_public_key(
+    public_key_object = serialization.load_ssh_public_key(
         pub_key_data, backend=default_backend()
     )
 
-    return certificate, key, public_key
+    public_key = public_key_object.public_bytes(
+        serialization.Encoding.OpenSSH, serialization.PublicFormat.OpenSSH
+    )
+
+    return certificate, key, key_string, public_key
 
 
 class CertificateAuthority:
@@ -158,7 +170,7 @@ class CertificateAuthority:
     """
 
     def __init__(
-            self, ca_storage=None, common_name=None, maximum_days=825, **kwargs
+        self, ca_storage=None, common_name=None, maximum_days=825, **kwargs
     ):
         """Constructor method"""
 
@@ -181,7 +193,8 @@ class CertificateAuthority:
         self.current_ca_status = file_data_status(self.status)
 
         if self.current_ca_status is True:
-            self._certificate, self._key, self._public_key = self.initialize()
+            self._certificate, self._key, self._key_string, self._public_key =\
+                self.initialize()
 
             current_cn_object = self._certificate.subject.rfc4514_string()
             self._common_name = current_cn_object.split("CN=")[-1]
@@ -193,10 +206,13 @@ class CertificateAuthority:
                     + "there is no CA available."
                 )
 
-            self._certificate, self._key, self._public_key = self.initialize(
-                common_name=common_name, maximum_days=maximum_days,
-                public_exponent=public_exponent, key_size=key_size
-            )
+            self._certificate, self._key, self._key_string, self._public_key =\
+                self.initialize(
+                    common_name=common_name,
+                    maximum_days=maximum_days,
+                    public_exponent=public_exponent,
+                    key_size=key_size,
+                )
 
     @property
     def status(self):
@@ -209,7 +225,7 @@ class CertificateAuthority:
         .. code-block:: python
 
             {
-                'certificate': bool,
+                "certificate": bool,
                 "key": bool,
                 "public_key": bool,
                 "ca_home": None or str,
@@ -234,17 +250,25 @@ class CertificateAuthority:
 
         :return: RSA Private Key class
         :rtype: class,
-            ``cryptography.hazmat.backends.openssl.rsa.RSAPrivateKey``
+    ``cryptography.hazmat.backends.openssl.rsa.RSAPrivateKeyWithSerialization``
         """
         return self._key
+
+    @property
+    def get_key_string(self):
+        """Get CA RSA Private key
+
+        :return: RSA Private Key class
+        :rtype: string
+        """
+        return self._key_string
 
     @property
     def get_public_key(self):
         """Get CA RSA Public key
 
         :return: RSA Public Key class
-        :rtype: class,
-            ``cryptography.hazmat.backends.openssl.rsa.RSAPublicKey``
+        :rtype: bytes
         """
         return self._public_key
 
@@ -329,7 +353,7 @@ class CertificateAuthority:
             store_file(public_key, public_ca_key_file)
 
             certificate = issue_cert(
-                oids=self.oids,
+                self.oids,
                 maximum_days=maximum_days,
                 key=key,
                 pem_public_key=pem_public_key,
@@ -347,10 +371,16 @@ class CertificateAuthority:
 
             self._common_name = common_name
             self._key = key
+            self._key_string = private_key
             self._certificate = certificate
             self._public_key = public_key
 
-            return self._certificate, self._key, self._public_key
+            return (
+                self._certificate,
+                self._key,
+                self._key_string,
+                self._public_key,
+            )
 
         else:
             raise TypeError(self.status)
@@ -385,21 +415,21 @@ class CertificateAuthority:
             common_name = hostname
 
         if os.path.isdir(host_cert_dir):
-            certificate, host_key, host_public_key = load_cert_files(
-                common_name=common_name,
-                key_file=host_key_path,
-                public_key_file=host_public_path,
-                certificate_file=host_cert_path,
-            )
+            certificate, host_key, host_private_key, host_public_key =\
+                load_cert_files(
+                    common_name=common_name,
+                    key_file=host_key_path,
+                    public_key_file=host_public_path,
+                    certificate_file=host_cert_path,
+                )
 
         else:
             os.mkdir(host_cert_dir)
 
-            key, host_key, host_pem_public_key, host_public_key = (
+            host_key, host_private_key, host_pem_public_key, host_public_key =\
                 keys.generate()
-            )
 
-            store_file(host_key, host_key_path, permission=0o600)
+            store_file(host_private_key, host_key_path, permission=0o600)
             store_file(host_public_key, host_public_path)
 
             if oids:
@@ -409,7 +439,7 @@ class CertificateAuthority:
                 oids = list()
 
             csr = issue_csr(
-                key=key,
+                key=host_key,
                 common_name=common_name,
                 dns_names=dns_names,
                 oids=oids,
@@ -424,7 +454,7 @@ class CertificateAuthority:
                 self.get_certificate,
                 self.get_key,
                 csr,
-                key,
+                host_key,
                 maximum_days=maximum_days,
             )
 
@@ -434,7 +464,12 @@ class CertificateAuthority:
             )
 
         host = HostCertificate(
-            common_name, files, certificate, host_key, host_public_key
+            common_name,
+            files,
+            certificate,
+            host_key,
+            host_public_key,
+            host_private_key,
         )
 
         return host
@@ -464,17 +499,22 @@ class HostCertificate:
     :type certificate: class, required
     :param key: private pem key bytes
     :type key: bytes, required
+    :param key_string: private string key as string
+    :type key_string: string, required
     :param public_key: public key bytes
     :type public_key: bytes, required
     """
 
-    def __init__(self, common_name, files, certificate, key, public_key):
+    def __init__(
+        self, common_name, files, certificate, key, public_key, key_string
+    ):
         """HostCertificate constructor method"""
 
         self._common_name = common_name
         self._files = files
         self._certificate = certificate
         self._key = key
+        self._key_string = key_string
         self._public_key = public_key
 
     @property
@@ -488,6 +528,12 @@ class HostCertificate:
         """Get host key"""
 
         return self._key
+
+    @property
+    def get_key_string(self):
+        """Get the private key as string"""
+
+        return self._key_string
 
     @property
     def get_public_key(self):

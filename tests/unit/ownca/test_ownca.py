@@ -44,16 +44,23 @@ def test_load_cert_files(
 ):
 
     mock.mock_open(mock_file)
+
+    mocked_key = mock.MagicMock()
+    mocked_key.__class__ = classmethod
+    mocked_key.private_bytes.return_value = "Key"
     mock_x509.load_pem_x509_certificate.return_value = fake_certificate
-    mock_serialization.load_pem_private_key.return_value = "Key"
-    mock_serialization.load_ssh_public_key.return_value = "Public_Key"
+    mock_serialization.load_pem_private_key.return_value = mocked_key
+    mocked_public_key = mock.MagicMock()
+    mocked_public_key.public_bytes.return_value = b"ssh-rsa ..."
+    mock_serialization.load_ssh_public_key.return_value = mocked_public_key
 
     result = load_cert_files(
         "fake-ca.com", "key_file", "public_key_file", "certificate_file"
     )
 
     assert isinstance(result[0], classmethod)
-    assert result[1:] == ("Key", "Public_Key")
+    assert isinstance(result[1], classmethod)
+    assert result[2:] == ("Key", b"ssh-rsa ...")
 
 
 @mock.patch("ownca.ownca.serialization")
@@ -104,7 +111,7 @@ def test_certificateauthority_properties(
 
     mock_keys.generate.return_value = (
         "key",
-        "private_key",
+        "key_string",
         "pem_key",
         "public_key",
     )
@@ -117,6 +124,7 @@ def test_certificateauthority_properties(
 
     assert isinstance(ownca.get_certificate, classmethod)
     assert ownca.get_key == "key"
+    assert ownca.get_key_string == "key_string"
     assert ownca.get_public_key == "public_key"
     assert ownca.get_common_name == "fake-ca.com"
 
@@ -189,7 +197,12 @@ def test_certificateauthority_already_exists(
     mock_file_data_status.return_value = True
     mock_ownca_directory.return_value = ownca_directory
 
-    mock__load_cert_keys.return_value = (fake_certificate, "key", "public_key")
+    mock__load_cert_keys.return_value = (
+        fake_certificate,
+        "key",
+        "key_string",
+        "public_key",
+    )
 
     ownca = CertificateAuthority(
         common_name="fake-ca.com", ca_storage="FAKE_STORAGE"
@@ -294,7 +307,7 @@ def test_test_certificateauthority_issue_certificate(
     mock_os.mkdir.return_value = True
     mock_keys.generate.return_value = (
         "key",
-        "private_key",
+        "key_string",
         "pem_key",
         "public_key",
     )
@@ -307,7 +320,8 @@ def test_test_certificateauthority_issue_certificate(
     )
 
     assert isinstance(my_fake_cert.get_certificate, classmethod)
-    assert my_fake_cert.get_key == "private_key"
+    assert my_fake_cert.get_key == "key"
+    assert my_fake_cert.get_key_string == "key_string"
     assert my_fake_cert.get_public_key == "public_key"
     assert my_fake_cert.get_common_name == "host.fake-ca.com"
 
@@ -334,7 +348,7 @@ def test_test_certificateauthority_issue_certificate_without_oids(
     mock_os.mkdir.return_value = True
     mock_keys.generate.return_value = (
         "key",
-        "private_key",
+        "key_string",
         "pem_key",
         "public_key",
     )
@@ -345,7 +359,8 @@ def test_test_certificateauthority_issue_certificate_without_oids(
     my_fake_cert = my_fake_ca.issue_certificate("host.fake-ca.com")
 
     assert isinstance(my_fake_cert.get_certificate, classmethod)
-    assert my_fake_cert.get_key == "private_key"
+    assert my_fake_cert.get_key == "key"
+    assert my_fake_cert.get_key_string == "key_string"
     assert my_fake_cert.get_public_key == "public_key"
     assert my_fake_cert.get_common_name == "host.fake-ca.com"
 
@@ -373,13 +388,15 @@ def test_test_certificateauthority_issue_certificate_existent(
     mock_os.return_value = True
     mock__load_cert_keys.return_value = (
         fake_certificate,
-        "private_key",
+        "key",
+        "key_string",
         "public_key",
     )
 
     my_fake_cert = my_fake_ca.issue_certificate("host.fake-ca.com")
 
     assert isinstance(my_fake_cert.get_certificate, classmethod)
-    assert my_fake_cert.get_key == "private_key"
+    assert my_fake_cert.get_key == "key"
+    assert my_fake_cert.get_key_string == "key_string"
     assert my_fake_cert.get_public_key == "public_key"
     assert my_fake_cert.get_common_name == "host.fake-ca.com"
