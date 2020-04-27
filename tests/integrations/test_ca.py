@@ -6,30 +6,12 @@
 
 from cryptography import x509
 from cryptography.hazmat.backends.openssl import rsa
-import os
-import shutil
 
 from ownca import CertificateAuthority
-
-
-CA_STORAGE = "CA_test"
-CA_COMMON_NAME = "ownca.org"
-CA_OIDS = {
-    "country_name": "BR",
-    "locality_name": "Uba",
-    "state_or_province": "Minas Gerais",
-    "street_address": "Rua Agostinho Martins de Oliveira",
-    "organization_name": "First home",
-    "organization_unit_name": "Good memories",
-    "email_address": "kairo at ...",
-}
-CA_MAXIMUM_DAYS = 365  # 1 year
-CA_DNS_NAMES = ["www.ownca.org", "ca.ownca.org"]
-
-
-def clean_test():
-    if os.path.isdir("CA_test"):
-        shutil.rmtree("CA_test")
+from tests.integrations.conftest import (
+    CA_STORAGE, CA_COMMON_NAME, CA_OIDS, CA_MAXIMUM_DAYS, CA_DNS_NAMES,
+    clean_test
+)
 
 
 def test_ca():
@@ -37,7 +19,8 @@ def test_ca():
 
     clean_test()
     ca = CertificateAuthority(
-        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE
+        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE,
+        maximum_days=CA_MAXIMUM_DAYS
     )
 
     assert ca.status == {
@@ -60,15 +43,17 @@ def test_ca():
 
 
 def test_ca_load():
-    """Tests if loading the existent CA from CA Storage is consistent"""
+    """Test if loading the existent CA from CA Storage is consistent"""
 
     clean_test()
     ca = CertificateAuthority(
-        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE
+        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE,
+        dns_name=CA_DNS_NAMES
     )
 
     ca_loaded = CertificateAuthority(
-        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE
+        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE,
+        dns_name=CA_DNS_NAMES
     )
 
     assert ca.status == ca_loaded.status
@@ -81,7 +66,7 @@ def test_ca_load():
     clean_test()
 
 
-def test_issue_cert():
+def test_ca_issue_cert():
     """Test CA issuing a certificate"""
 
     cert_oids = {
@@ -117,8 +102,8 @@ def test_issue_cert():
     clean_test()
 
 
-def test_issue_cert_loaded_by_second_ca_instance():
-    """Test CA issuing a certificate"""
+def test_ca_issue_cert_loaded_by_second_ca_instance():
+    """Test CA issuing a certificate and consistence second instance"""
 
     cert_oids = {
         "country_name": "BR",

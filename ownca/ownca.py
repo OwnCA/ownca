@@ -353,7 +353,7 @@ class CertificateAuthority:
             store_file(public_key, public_ca_key_file)
 
             certificate = issue_cert(
-                oids=self.oids,
+                self.oids,
                 maximum_days=maximum_days,
                 key=key,
                 pem_public_key=pem_public_key,

@@ -135,6 +135,7 @@ def issue_cert(
 
     one_day = datetime.timedelta(1, 0, 0)
     builder = x509.CertificateBuilder()
+
     builder = builder.subject_name(x509.Name(oids))
 
     if host:

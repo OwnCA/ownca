@@ -7,8 +7,6 @@ name: PyPI
 on:
   push:
     branches: [ master ]
-    paths:
-      - 'ownca/__version__.py'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -25,9 +23,14 @@ jobs:
       with:
         python-version: '3.7'
 
-    # Publishes the OwnCA new version in PyPi
-    - name: Publish OnwCA to PyPI
-      uses: pypa/gh-action-pypi-publish@master
+    # Runs Python tests
+    - name: Run Python tests
+      run: make py37-tests
+
+    # Uploads the coverage
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
       with:
-        user: __token__
-        password: ${{ secrets.pypi_password }}
+        flags: unittests
+        name: coverage
+        fail_ci_if_error: true
