@@ -7,7 +7,11 @@ import subprocess
 
 from ownca import CertificateAuthority
 from tests.integrations.conftest import (
-    CA_STORAGE, CA_COMMON_NAME, CA_MAXIMUM_DAYS, CA_DNS_NAMES, clean_test
+    CA_STORAGE,
+    CA_COMMON_NAME,
+    CA_MAXIMUM_DAYS,
+    CA_DNS_NAMES,
+    clean_test,
 )
 
 
@@ -16,8 +20,10 @@ def test_valid_cert_ca():
 
     clean_test()
     ca = CertificateAuthority(
-        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE,
-        maximum_days=CA_MAXIMUM_DAYS, dns_names=CA_DNS_NAMES,
+        common_name=CA_COMMON_NAME,
+        ca_storage=CA_STORAGE,
+        maximum_days=CA_MAXIMUM_DAYS,
+        dns_names=CA_DNS_NAMES,
         # oids=CA_OIDS  ToDo: issue #4
     )
 
@@ -25,7 +31,7 @@ def test_valid_cert_ca():
         "dev.ownca.org",
         maximum_days=30,
         dns_names=["www.dev.ownca.org", "developer.ownca.org"],
-        oids={"country_name": "NL", "locality_name": "Veldhoven"}
+        oids={"country_name": "NL", "locality_name": "Veldhoven"},
     )
 
     openssl_cmd = (
@@ -47,15 +53,17 @@ def test_validad_cert_sencond_ca():
     clean_test()
     clean_test("CA_test_second")
     ca = CertificateAuthority(
-        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE,
-        maximum_days=CA_MAXIMUM_DAYS, dns_names=CA_DNS_NAMES,
+        common_name=CA_COMMON_NAME,
+        ca_storage=CA_STORAGE,
+        maximum_days=CA_MAXIMUM_DAYS,
+        dns_names=CA_DNS_NAMES,
     )
 
     ca.issue_certificate(
         "dev.ownca.org",
         maximum_days=30,
         dns_names=["www.dev.ownca.org", "developer.ownca.org"],
-        oids={"country_name": "NL", "locality_name": "Veldhoven"}
+        oids={"country_name": "NL", "locality_name": "Veldhoven"},
     )
 
     openssl_cmd = (
@@ -69,8 +77,10 @@ def test_validad_cert_sencond_ca():
     assert openssl.returncode == 0, openssl.stdout
 
     CertificateAuthority(
-        common_name=CA_COMMON_NAME, ca_storage="CA_test_second",
-        maximum_days=CA_MAXIMUM_DAYS, dns_names=CA_DNS_NAMES,
+        common_name=CA_COMMON_NAME,
+        ca_storage="CA_test_second",
+        maximum_days=CA_MAXIMUM_DAYS,
+        dns_names=CA_DNS_NAMES,
     )
 
     # test to wrong CA

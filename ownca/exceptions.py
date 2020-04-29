@@ -5,19 +5,31 @@ Copyright (c) 2018, 2019 Kairo de Araujo
 """
 
 
-class InconsistentCertificateData(Exception):
+class OwnCAInconsistentData(Exception):
     """Certificate file is inconsistent."""
 
     pass
 
 
-class InvalidCAFiles(Exception):
+class OwnCAInvalidFiles(Exception):
     """CA Files are inconsistent."""
 
     pass
 
 
-class InvalidOID(Exception):
+class OwnCAInvalidOID(Exception):
     """Invalid OID"""
+
+    pass
+
+
+class OnwCAInvalidDataStructure(Exception):
+    """Invalid Ownca Data Structure."""
+
+    pass
+
+
+class OwnCAFatalError(Exception):
+    """No controlled Error, fatal error"""
 
     pass

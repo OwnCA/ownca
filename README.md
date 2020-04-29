@@ -7,24 +7,24 @@
 Python Own Certificate Authority (ownca)
 ========================================
 
-OwnCA makes easy handle a Certificate Authority (CA) and manage certificates
-for hosts or clients.
+OwnCA makes easy handle Certificate Authority (CA) and manage certificates
+for hosts, servers or clients.
 
-A high level usage is
+An example of high level usage:
 
 ```pycon
 >>> from ownca import CertificateAuthority
->>> ca = CertificateAuthority(ca_storage='/opt/CA', common_name='Corp CA')
->>> mycorp = ca.issue_certificate('mycorp', dns_names=['mycorp.com', 'tls.mycorp.com')
+>>> ca = CertificateAuthority(ca_storage='/opt/CA', common_name='MyCorp CA')
+>>> mycorp = ca.issue_certificate('www.mycorp.com', dns_names=['www.mycorp.com', 'w3.mycorp.com')
 
 ```
 
-Basically in this three steps we did:
+Basically in this three lines steps:
  1. Imported the ownca Certificate Authority library
  2. Created a new CA named as *Corp CA* that uses ```/opt/CA``` as CA storage
-    for certificates, keys and files.
- 3. Create a signed certificates by *Corp CA* server *mycorp*, the server
- files are also stored in ```/opt/CA/certs/mycorp```.
+    for certificates, keys etc.
+ 3. Create a signed certificates by *Corp CA* server *www.mycorp.com*, 
+ the files are also stored in ```/opt/CA/certs/mycorp.com```.
 
 More detailed usage can be found in [http://ownca.readthedocs.org](
 http://ownca.readthedocs.org)

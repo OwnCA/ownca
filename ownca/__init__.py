@@ -5,7 +5,6 @@ Copyright (c) 2018, 2019 Kairo de Araujo
 """
 
 from .ownca import CertificateAuthority
-
 from .__version__ import (
     __title__,
     __description__,
