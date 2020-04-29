@@ -5,7 +5,7 @@ Copyright (c) 2020 Kairo de Araujo
 from unittest import mock
 import pytest
 
-from ownca.crypto.cert import (
+from ownca.crypto.certs import (
     issue_cert,
     issue_csr,
     ca_sign_csr,
@@ -15,8 +15,8 @@ from ownca.crypto.cert import (
 )
 
 
-@mock.patch("ownca.crypto.cert.x509")
-@mock.patch("ownca.crypto.cert._valid_cert")
+@mock.patch("ownca.crypto.certs.x509")
+@mock.patch("ownca.crypto.certs._valid_cert")
 def test_issue_cert(
     mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
@@ -29,8 +29,8 @@ def test_issue_cert(
     assert isinstance(cert, classmethod)
 
 
-@mock.patch("ownca.crypto.cert.x509")
-@mock.patch("ownca.crypto.cert._valid_cert")
+@mock.patch("ownca.crypto.certs.x509")
+@mock.patch("ownca.crypto.certs._valid_cert")
 def test_issue_cert_with_dns_names(
     mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
@@ -45,8 +45,8 @@ def test_issue_cert_with_dns_names(
     assert isinstance(cert, classmethod)
 
 
-@mock.patch("ownca.crypto.cert.x509")
-@mock.patch("ownca.crypto.cert._valid_cert")
+@mock.patch("ownca.crypto.certs.x509")
+@mock.patch("ownca.crypto.certs._valid_cert")
 def test_issue_cert_with_bad_dns_names(
     mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
@@ -67,8 +67,8 @@ def test_issue_cert_with_bad_dns_names(
         assert "dns_names require a list of strings." in excinfo.value
 
 
-@mock.patch("ownca.crypto.cert.x509")
-@mock.patch("ownca.crypto.cert._valid_cert")
+@mock.patch("ownca.crypto.certs.x509")
+@mock.patch("ownca.crypto.certs._valid_cert")
 def test_issue_cert_host(
     mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
@@ -81,8 +81,8 @@ def test_issue_cert_host(
     assert isinstance(cert, classmethod)
 
 
-@mock.patch("ownca.crypto.cert.x509")
-@mock.patch("ownca.crypto.cert._valid_cert")
+@mock.patch("ownca.crypto.certs.x509")
+@mock.patch("ownca.crypto.certs._valid_cert")
 def test_issue_cert_without_maximum_days(
     mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
@@ -96,8 +96,8 @@ def test_issue_cert_without_maximum_days(
         assert "maximum_days is required" in excinfo.value
 
 
-@mock.patch("ownca.crypto.cert._valid_csr")
-@mock.patch("ownca.crypto.cert.x509")
+@mock.patch("ownca.crypto.certs._valid_csr")
+@mock.patch("ownca.crypto.certs.x509")
 def test_issue_csr(mock_x509, mock__valid_csr, oids_sample, fake_certificate):
     mock_x509.NameAttribute.return_value = oids_sample
     mock__valid_csr.return_value = fake_certificate
@@ -107,8 +107,8 @@ def test_issue_csr(mock_x509, mock__valid_csr, oids_sample, fake_certificate):
     assert isinstance(csr, classmethod)
 
 
-@mock.patch("ownca.crypto.cert._valid_csr")
-@mock.patch("ownca.crypto.cert.x509")
+@mock.patch("ownca.crypto.certs._valid_csr")
+@mock.patch("ownca.crypto.certs.x509")
 def test_issue_csr_with_dns_names(
     mock_x509, mock__valid_csr, oids_sample, fake_certificate
 ):
@@ -120,8 +120,8 @@ def test_issue_csr_with_dns_names(
     assert isinstance(csr, classmethod)
 
 
-@mock.patch("ownca.crypto.cert._valid_csr")
-@mock.patch("ownca.crypto.cert.x509")
+@mock.patch("ownca.crypto.certs._valid_csr")
+@mock.patch("ownca.crypto.certs.x509")
 def test_issue_csr_with_bad_dns_names(
     mock_x509, mock__valid_csr, oids_sample, fake_certificate
 ):
@@ -141,8 +141,8 @@ def test_issue_csr_with_bad_dns_names(
         assert "dns_names require a list of strings." in excinfo.value
 
 
-@mock.patch("ownca.crypto.cert.x509")
-@mock.patch("ownca.crypto.cert._valid_cert")
+@mock.patch("ownca.crypto.certs.x509")
+@mock.patch("ownca.crypto.certs._valid_cert")
 def test_ca_sign_csr_without_maximum_days(
     mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
@@ -156,8 +156,8 @@ def test_ca_sign_csr_without_maximum_days(
         assert "maximum_days is required" in excinfo.value
 
 
-@mock.patch("ownca.crypto.cert.x509")
-@mock.patch("ownca.crypto.cert._valid_cert")
+@mock.patch("ownca.crypto.certs.x509")
+@mock.patch("ownca.crypto.certs._valid_cert")
 def test_ca_sign_csr(
     mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):

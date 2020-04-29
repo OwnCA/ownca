@@ -5,7 +5,8 @@ Copyright (c) 2020 Kairo de Araujo
 import pytest
 from unittest import mock
 
-from ownca.ownca import CertificateAuthority
+from ownca.ownca import CertificateAuthority, OwncaCertData
+from ownca.crypto.keys import OwncaKeyData
 
 
 @pytest.fixture
@@ -40,6 +41,7 @@ def fake_certificate():
 
     fake_certificate = mock.MagicMock()
     fake_certificate.__class__ = classmethod
+    fake_certificate.return_value._backend = "123"
     fake_certificate.subject.rfc4514_string.return_value = "CN=fake-ca.com"
 
     return fake_certificate
@@ -55,6 +57,7 @@ def fake_csr():
 
 
 @pytest.fixture()
+@mock.patch("ownca.ownca.OwncaCertData")
 @mock.patch("ownca.ownca.issue_cert")
 @mock.patch("ownca.ownca.store_file")
 @mock.patch("ownca.ownca.keys")
@@ -68,20 +71,18 @@ def certificateauthority(
     mock_keys,
     mock_store_file,
     mock_ca_certificate,
+    mock_OwncaCertData,
     ownca_directory,
     oids_sample,
     fake_certificate,
+    ownca_certdata,
+    ownca_keydata,
 ):
     mock_os.getcwd.return_value = "FAKE_CA"
     mock_file_data_status.return_value = None
     mock_ownca_directory.return_value = ownca_directory
-
-    mock_keys.generate.return_value = (
-        "key",
-        "private_key",
-        "pem_key",
-        "public_key",
-    )
+    mock_keys.generate.return_value = ownca_keydata
+    mock_OwncaCertData.return_value = ownca_certdata
 
     mock_store_file.return_value = True
 
@@ -103,3 +104,39 @@ def x509_certificate_builder(fake_certificate):
     mocked_builder.sign.return_value = fake_certificate
 
     return mocked_builder
+
+
+@pytest.fixture()
+@mock.patch("ownca.ownca._validate_owncacertdata")
+def ownca_certdata(mock_validate_owncacertdata, fake_certificate):
+
+    mock_validate_owncacertdata.return_value = None
+    cert_data = OwncaCertData(
+        {
+            "cert": fake_certificate,
+            "cert_bytes": "cert_bytes",
+            "key": "key",
+            "key_bytes": "key_bytes",
+            "public_key": "public_key",
+            "public_key_bytes": "public_key_bytes",
+        }
+    )
+
+    return cert_data
+
+
+@pytest.fixture()
+@mock.patch("ownca.crypto.keys._validate_owncakeydata")
+def ownca_keydata(mock__validate_owncakeydata):
+
+    mock__validate_owncakeydata.return_value = None
+    cert_data = OwncaKeyData(
+        {
+            "key": "key",
+            "key_bytes": "key_bytes",
+            "public_key": "public_key",
+            "public_key_bytes": "public_key_bytes",
+        }
+    )
+
+    return cert_data

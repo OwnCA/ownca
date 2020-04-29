@@ -9,8 +9,12 @@ from cryptography.hazmat.backends.openssl import rsa
 
 from ownca import CertificateAuthority
 from tests.integrations.conftest import (
-    CA_STORAGE, CA_COMMON_NAME, CA_OIDS, CA_MAXIMUM_DAYS, CA_DNS_NAMES,
-    clean_test
+    CA_STORAGE,
+    CA_COMMON_NAME,
+    CA_OIDS,
+    CA_MAXIMUM_DAYS,
+    CA_DNS_NAMES,
+    clean_test,
 )
 
 
@@ -19,8 +23,9 @@ def test_ca():
 
     clean_test()
     ca = CertificateAuthority(
-        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE,
-        maximum_days=CA_MAXIMUM_DAYS
+        common_name=CA_COMMON_NAME,
+        ca_storage=CA_STORAGE,
+        maximum_days=CA_MAXIMUM_DAYS,
     )
 
     assert ca.status == {
@@ -30,16 +35,12 @@ def test_ca():
         "ca_home": CA_STORAGE,
     }
 
-    assert isinstance(ca.get_certificate, x509.Certificate)
-
-    assert isinstance(ca.get_key, rsa.RSAPrivateKeyWithSerialization)
-
-    assert type(ca.get_public_key) == bytes
-    assert ca.get_public_key.startswith(b"ssh-rsa")
-
-    assert ca.get_common_name == CA_COMMON_NAME
-
-    assert len(ca.get_hash_name) == 8
+    assert isinstance(ca.cert, x509.Certificate)
+    assert isinstance(ca.key, rsa.RSAPrivateKeyWithSerialization)
+    assert type(ca.public_key_bytes) == bytes
+    assert ca.public_key_bytes.startswith(b"ssh-rsa")
+    assert ca.common_name == CA_COMMON_NAME
+    assert len(ca.hash_name) == 8
 
 
 def test_ca_load():
@@ -47,21 +48,23 @@ def test_ca_load():
 
     clean_test()
     ca = CertificateAuthority(
-        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE,
-        dns_name=CA_DNS_NAMES
+        common_name=CA_COMMON_NAME,
+        ca_storage=CA_STORAGE,
+        dns_name=CA_DNS_NAMES,
     )
 
     ca_loaded = CertificateAuthority(
-        common_name=CA_COMMON_NAME, ca_storage=CA_STORAGE,
-        dns_name=CA_DNS_NAMES
+        common_name=CA_COMMON_NAME,
+        ca_storage=CA_STORAGE,
+        dns_name=CA_DNS_NAMES,
     )
 
     assert ca.status == ca_loaded.status
-    assert ca.get_certificate == ca_loaded.get_certificate
-    assert ca.get_key_string == ca.get_key_string
-    assert ca.get_common_name == ca_loaded.get_common_name
-    assert ca.get_public_key == ca_loaded.get_public_key
-    assert ca.get_hash_name == ca_loaded.get_hash_name
+    assert ca.cert_bytes == ca_loaded.cert_bytes
+    assert ca.key_bytes == ca.key_bytes
+    assert ca.common_name == ca_loaded.common_name
+    assert ca.public_key_bytes == ca_loaded.public_key_bytes
+    assert ca.hash_name == ca_loaded.hash_name
 
     clean_test()
 
@@ -90,14 +93,11 @@ def test_ca_issue_cert():
         cert_common_name, maximum_days=30, oids=cert_oids
     )
 
-    assert isinstance(cert1.get_certificate, x509.Certificate)
-
-    assert isinstance(cert1.get_key, rsa.RSAPrivateKeyWithSerialization)
-
-    assert type(cert1.get_public_key) == bytes
-    assert cert1.get_public_key.startswith(b"ssh-rsa")
-
-    assert cert1.get_common_name == cert_common_name
+    assert isinstance(cert1.cert, x509.Certificate)
+    assert isinstance(cert1.key, rsa.RSAPrivateKeyWithSerialization)
+    assert type(cert1.public_key_bytes) == bytes
+    assert cert1.public_key_bytes.startswith(b"ssh-rsa")
+    assert cert1.common_name == cert_common_name
 
     clean_test()
 
@@ -130,22 +130,19 @@ def test_ca_issue_cert_loaded_by_second_ca_instance():
         cert_common_name, maximum_days=30, oids=cert_oids
     )
 
-    assert isinstance(cert1.get_certificate, x509.Certificate)
-
-    assert isinstance(cert1.get_key, rsa.RSAPrivateKeyWithSerialization)
-
-    assert type(cert1.get_public_key) == bytes
-    assert cert1.get_public_key.startswith(b"ssh-rsa")
-
-    assert cert1.get_common_name == cert_common_name
+    assert isinstance(cert1.cert, x509.Certificate)
+    assert isinstance(cert1.key, rsa.RSAPrivateKeyWithSerialization)
+    assert type(cert1.public_key_bytes) == bytes
+    assert cert1.public_key_bytes.startswith(b"ssh-rsa")
+    assert cert1.common_name == cert_common_name
 
     cert1_loaded = ca_loaded.issue_certificate(
         cert_common_name, maximum_days=30, oids=cert_oids
     )
 
-    assert cert1.get_certificate == cert1_loaded.get_certificate
-    assert cert1.get_key_string == cert1_loaded.get_key_string
-    assert cert1.get_public_key == cert1_loaded.get_public_key
-    assert cert1.get_common_name == cert1_loaded.get_common_name
+    assert cert1.cert_bytes == cert1_loaded.cert_bytes
+    assert cert1.key_bytes == cert1_loaded.key_bytes
+    assert cert1.public_key_bytes == cert1_loaded.public_key_bytes
+    assert cert1.common_name == cert1_loaded.common_name
 
     clean_test()
