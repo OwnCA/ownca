@@ -8,6 +8,7 @@ import subprocess
 from ownca import CertificateAuthority
 from tests.integrations.conftest import (
     CA_STORAGE,
+    CA_OIDS,
     CA_COMMON_NAME,
     CA_MAXIMUM_DAYS,
     CA_DNS_NAMES,
@@ -24,7 +25,7 @@ def test_valid_cert_ca():
         ca_storage=CA_STORAGE,
         maximum_days=CA_MAXIMUM_DAYS,
         dns_names=CA_DNS_NAMES,
-        # oids=CA_OIDS  ToDo: issue #4
+        oids=CA_OIDS
     )
 
     ca.issue_certificate(
