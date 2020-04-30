@@ -15,6 +15,7 @@ from cryptography.x509.oid import NameOID
 import os
 import re
 from voluptuous import Schema, MultipleInvalid
+import warnings
 
 from .crypto import keys
 from .crypto.certs import issue_cert, issue_csr, ca_sign_csr
@@ -137,14 +138,23 @@ def format_oids(oids_parameters):
     """
     Format dictionary OIDs to ``cryptography.x509.oid.NameOID`` object list
 
-    :param oids_parameters: oids ``CertificateAuthority``
+    :param oids_parameters: CA Object Identifiers (OIDs).
+        The are typically seen in X.509 names.
+        Allowed keys/values:
+        ``'country_name': str (two letters)``,
+        ``'locality_name': str``,
+        ``'state_or_province': str``,
+        ``'street_address': str``,
+        ``'organization_name': str``,
+        ``'organization_unit_name': str``,
+        ``'email_address': str``,
     :type oids_parameters: dict, required
     :return: ``cryptography.x509.oid.NameOID`` object list
     :rtype: object ``cryptography.x509.oid.NameOID`` object list
     """
     oids = list()
-    for oid in OIDS:
-        if oid in oids_parameters:
+    for oid in oids_parameters:
+        if oid in OIDS:
             current_oid = oids_parameters[oid]
             if type(current_oid) is not str:
                 raise TypeError(f"'{oid}' must be str")
@@ -194,6 +204,11 @@ def format_oids(oids_parameters):
                 oids.append(
                     x509.NameAttribute(NameOID.EMAIL_ADDRESS, current_oid)
                 )
+
+        else:
+            raise OwnCAInvalidOID(
+                f"The '{oid}' is Invalid. Allowed OIDs: {', '.join(OIDS)}."
+            )
 
     return oids
 
@@ -260,14 +275,14 @@ class CertificateAuthority:
 
 
     :param ca_storage: path where CA files and hosts files are stored. Default
-        is None ``os.getcwd()``
+        is the current directory (``os.getcwd()``)
     :type ca_storage: str, required when there is no CA
     :param common_name: Common Name for CA
     :type common_name: str, required when there is no CA
     :param dns_names: List of DNS names
     :type dns_names: list of strings, optional
-    :param oids: CA Object Identifiers (OIDs). The are typically seen in
-        X.509 names.
+    :param oids: CA Object Identifiers (OIDs). The are typically seen
+        in X.509 names.
         Allowed keys/values:
         ``'country_name': str (two letters)``,
         ``'locality_name': str``,
@@ -276,11 +291,11 @@ class CertificateAuthority:
         ``'organization_name': str``,
         ``'organization_unit_name': str``,
         ``'email_address': str``,
+    :type oids: dict, optional, all keys are optional
     :param public_exponent: Public Exponent
     :type public_exponent: int, default: 65537
     :param key_size: Key size
     :type key_size: int, default: 2048
-    :type oids: dict, optional, all keys are optional
     """
 
     def __init__(
@@ -292,7 +307,13 @@ class CertificateAuthority:
         key_size = kwargs.get("key_size", 2048)
 
         if "oids" in kwargs:
-            self.oids = format_oids(kwargs["oids"])
+            # TODO: Fox Issue #4
+            warnings.warn(
+                "The OIDS will be ignored ot CA. It is NOT working. Issue #4"
+                + "Check out https://github.com/OwnCA/ownca/issues/4 ."
+            )
+            # self.oids = format_oids(kwargs["oids"])
+            self.oids = list()
 
         else:
             self.oids = list()
@@ -328,27 +349,12 @@ class CertificateAuthority:
             )
             self._update(cert_data)
 
-    def _update(self, cert_data):
-        """
-        Update certificate data in the instance.
-
-        :param cert_data:
-        :return: True
-        """
-
-        self._certificate = cert_data.cert
-        self._certificate_bytes = cert_data.cert_bytes
-        self._key = cert_data.key
-        self._key_bytes = cert_data.key_bytes
-        self._public_key = cert_data.public_key
-        self._public_key_bytes = cert_data.public_key_bytes
-
     @property
     def status(self):
         """
         This method give the CA storage status
 
-        :return: dict ``_utils.ownca_directory``
+        :return: dict ``ownca.utils.ownca_directory``
 
         .. highlight:: python
         .. code-block:: python
@@ -368,7 +374,7 @@ class CertificateAuthority:
 
         :return: certificate class
         :rtype: class,
-        ``cryptography.hazmat.backends.openssl.x509.Certificate``
+            ``cryptography.hazmat.backends.openssl.x509.Certificate``
         """
 
         return self._certificate
@@ -450,6 +456,21 @@ class CertificateAuthority:
             "x",
         )
 
+    def _update(self, cert_data):
+        """
+        Update certificate data in the instance.
+
+        :param cert_data:
+        :return: True
+        """
+
+        self._certificate = cert_data.cert
+        self._certificate_bytes = cert_data.cert_bytes
+        self._key = cert_data.key
+        self._key_bytes = cert_data.key_bytes
+        self._public_key = cert_data.public_key
+        self._public_key_bytes = cert_data.public_key_bytes
+
     def initialize(
         self,
         common_name=None,
@@ -477,7 +498,7 @@ class CertificateAuthority:
             ``cryptography.x509.Certificate``,
             ``cryptography.hazmat.backends.openssl.rsa``,
             string public key
-        )
+            )
         """
 
         private_ca_key_file = f"{self.ca_storage}/{CA_KEY}"
@@ -547,7 +568,35 @@ class CertificateAuthority:
         common_name=None,
         dns_names=None,
         oids=None,
+        public_exponent=65537,
+        key_size=2048,
     ):
+        """
+        :param hostname: Hostname
+        :type hostname: str, required
+        :param maximum_days: Certificate maximum days duration
+        :type maximum_days: int, default: 825
+        :param dns_names: List of DNS names
+        :type dns_names: list of strings, optional
+        :param oids: CA Object Identifiers (OIDs). The are typically seen
+            in X.509 names.
+            Allowed keys/values:
+            ``'country_name': str (two letters)``,
+            ``'locality_name': str``,
+            ``'state_or_province': str``,
+            ``'street_address': str``,
+            ``'organization_name': str``,
+            ``'organization_unit_name': str``,
+            ``'email_address': str``,
+        :type oids: dict, optional, all keys are optional
+        :param public_exponent: Public Exponent
+        :type public_exponent: int, default: 65537
+        :param key_size: Key size
+        :type key_size: int, default: 2048
+        :param hostname:
+        :return: host object
+        :rtype: ``ownca.ownca.HostCertificate``
+        """
         if not validate_hostname(hostname):
             raise TypeError(
                 "Invalid 'hostname'. Hostname must to be a string following "
@@ -579,7 +628,9 @@ class CertificateAuthority:
 
         else:
             os.mkdir(host_cert_dir)
-            key_data = keys.generate()
+            key_data = keys.generate(
+                public_exponent=public_exponent, key_size=key_size
+            )
 
             store_file(key_data.key_bytes, host_key_path, permission=0o600)
             store_file(key_data.public_key_bytes, host_public_path)
@@ -667,7 +718,7 @@ class HostCertificate:
 
         :return: certificate object
         :rtype: object,
-        ``cryptography.hazmat.backends.openssl.x509.Certificate``
+            ``cryptography.hazmat.backends.openssl.x509.Certificate``
         """
 
         return self.cert_data.cert

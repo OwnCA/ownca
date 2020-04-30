@@ -15,8 +15,7 @@ An example of high level usage:
 ```pycon
 >>> from ownca import CertificateAuthority
 >>> ca = CertificateAuthority(ca_storage='/opt/CA', common_name='MyCorp CA')
->>> mycorp = ca.issue_certificate('www.mycorp.com', dns_names=['www.mycorp.com', 'w3.mycorp.com')
-
+>>> example_com = ca.issue_certificate('www.example.com', dns_names=['www.example.com', 'w3.example.com')
 ```
 
 Basically in this three lines steps:
@@ -25,6 +24,11 @@ Basically in this three lines steps:
     for certificates, keys etc.
  3. Create a signed certificates by *Corp CA* server *www.mycorp.com*, 
  the files are also stored in ```/opt/CA/certs/mycorp.com```.
+ 
+    ```pycon
+     >>> example_com.cert
+     <Certificate(subject=<Name(CN=www.example.com)>, ...)>
+    ```
 
 More detailed usage can be found in [http://ownca.readthedocs.org](
 http://ownca.readthedocs.org)
@@ -36,3 +40,7 @@ Installation
 ```shell
 pip install ownca
 ```
+
+Documentation
+=============
+Visit [http://ownca.readthedocs.org](http://ownca.readthedocs.org)

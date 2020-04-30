@@ -22,8 +22,12 @@ def file_data_status(ca_status):
     """
     Verify the CA status based in the existent files.
 
-    :param ca_status: dict current ca_status file dictionary: ownca_directory()
-    :return: bool or None
+    :param ca_status: current ``ca_status`` file dictionary:
+        ``ownca.utils.ownca_directory``
+    :type ca_status: dict, required
+
+    :return: True, False or None
+    :rtype: bool/None
     """
     key = ca_status["key"]
     cert = ca_status["certificate"]
