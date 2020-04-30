@@ -63,6 +63,30 @@ def _validate_owncacertdata(data):
 
 
 class OwncaCertData(object):
+    """
+     Generates Ownca Certificate Data Structure
+
+     :param data: Certificate Data
+
+        .. highlight:: python
+        .. code-block:: python
+
+         {
+            "cert": cryptography.x509.Certificate,
+            "cert_bytes": bytes,
+            "key": cryptography.hazmat.backends.openssl.rsa._RSAPrivateKey,
+            "key_bytes": bytes,
+            "public_key":
+             cryptography.hazmat.backends.openssl.rsa._RSAPrivateKey,
+            "public_key_bytes": bytes,
+         }
+     :type data: dict
+
+     :return: OwncaCertData
+     :rtype: ``ownca.ownca.OwncaCertData``
+     :raises: ``OnwCAInvalidDataStructure``
+     """
+
     def __init__(self, data):
         try:
             _validate_owncacertdata(data)
@@ -576,6 +600,8 @@ class CertificateAuthority:
         :type hostname: str, required
         :param maximum_days: Certificate maximum days duration
         :type maximum_days: int, default: 825
+        :param common_name: Common Name (CN) when loading existent certificate
+        :type common_name: str, optional
         :param dns_names: List of DNS names
         :type dns_names: list of strings, optional
         :param oids: CA Object Identifiers (OIDs). The are typically seen

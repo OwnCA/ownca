@@ -457,6 +457,44 @@ def test_test_certificateauthority_issue_certificate_without_oids(
     assert my_fake_cert.common_name == "host.fake-ca.com"
 
 
+@mock.patch("ownca.ownca.OwncaCertData")
+@mock.patch("ownca.ownca.ca_sign_csr")
+@mock.patch("ownca.ownca.issue_csr")
+@mock.patch("ownca.ownca.store_file")
+@mock.patch("ownca.ownca.keys")
+@mock.patch("ownca.ownca.os")
+def test_test_certificateauthority_issue_certificate_invalid_oids(
+    mock_os,
+    mock_keys,
+    mock_store_file,
+    mock_issue_csr,
+    mock_ca_sign_csr,
+    mock_OwncaCertData,
+    certificateauthority,
+    fake_certificate,
+    fake_csr,
+    ownca_keydata,
+    ownca_certdata,
+):
+
+    my_fake_ca = certificateauthority
+
+    mock_os.path.isdir.return_value = False
+    mock_os.mkdir.return_value = True
+    mock_keys.generate.return_value = ownca_keydata
+    mock_store_file.return_value = True
+    mock_issue_csr.return_value = fake_csr
+    mock_ca_sign_csr.return_value = fake_certificate
+    mock_OwncaCertData.return_value = ownca_certdata
+
+    with pytest.raises(OwnCAInvalidOID) as err:
+        my_fake_ca.issue_certificate(
+            "host.fake-ca.com", oids={"invalid_oid": "OID_INVALID"}
+        )
+
+        assert "invalid_oid" in err.value
+
+
 def test_test_certificateauthority_issue_certificate_invalid_hostname(
     certificateauthority
 ):

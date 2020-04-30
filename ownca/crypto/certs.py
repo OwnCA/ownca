@@ -66,7 +66,7 @@ def issue_cert(
         or None. See ``ownca.format_oids``.
     :type oids: list, required.
     :param maximum_days: number of maximum days of certificate (expiration)
-    :type maximum_days: int, required, min 1 max 3096.
+    :type maximum_days: int, required, min 1 max 825.
     :param key: key object ``cryptography.hazmat.backends.openssl.rsa``
     :type key: object, required.
     :param pem_public_key: PEM public key object
@@ -128,8 +128,8 @@ def issue_cert(
 
         return builder
 
-    if maximum_days is None or 1 < maximum_days > 3096:
-        raise ValueError("maximum_days is required: Minimum 1, Maximum 3096")
+    if maximum_days is None or 1 < maximum_days > 825:
+        raise ValueError("maximum_days is required: Minimum 1, Maximum 825")
 
     oids.append(x509.NameAttribute(NameOID.COMMON_NAME, common_name))
 
@@ -178,6 +178,7 @@ def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
 
     :return: certificate sigining request object
     :rtype: ``cryptography.x509.CertificateSigningRequest``
+    :raises: ``TypeError``
     """
     csr_builder = x509.CertificateSigningRequestBuilder()
 
@@ -222,13 +223,14 @@ def ca_sign_csr(ca_cert, ca_key, csr, key, maximum_days=None):
     :type csr: object, required.
     :param key: key object ``cryptography.hazmat.backends.openssl.rsa``
     :param maximum_days: number of maximum days of certificate (expiration)
-    :type maximum_days: int, required, min 1 max 3096.
+    :type maximum_days: int, required, min 1 max 825.
 
     :return: certificate object
     :rtype: ``cryptography.x509.Certificate``
+    :raises: ``ValueError``
     """
-    if maximum_days is None or 1 < maximum_days > 3096:
-        raise ValueError("Value is required: Minimum 1, Maximum 3096")
+    if maximum_days is None or 1 < maximum_days > 825:
+        raise ValueError("Value is required: Minimum 1, Maximum 825")
     one_day = datetime.timedelta(1, 0, 0)
 
     certificate = x509.CertificateBuilder()

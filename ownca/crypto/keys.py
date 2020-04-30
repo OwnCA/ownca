@@ -34,8 +34,28 @@ def _validate_owncakeydata(key_data):
 
 
 class OwncaKeyData(object):
-    def __init__(self, key_data):
+    """
+     Generates Ownca Key Data Structure
 
+     :param key_data: Key Data
+
+        .. highlight:: python
+        .. code-block:: python
+
+         {
+             "key": cryptography.hazmat.backends.openssl.rsa._RSAPrivateKey,
+             "key_bytes": bytes,
+             "public_key":
+                 cryptography.hazmat.backends.openssl.rsa._RSAPrivateKey,
+             "public_key_bytes": bytes,
+         }
+     :type key_data: dict
+
+     :return: OwncaKeyData
+     :rtype: ``ownca.crypto.keys.OwncaKeyData``
+     :raises: ``OnwCAInvalidDataStructure``
+     """
+    def __init__(self, key_data):
         try:
             _validate_owncakeydata(key_data)
 
@@ -111,14 +131,8 @@ def generate(public_exponent=65537, key_size=2048):
     :param key_size: Key size
     :type key_size: int, optional, Default: 2048
 
-    :return: RSA Private Key class, Private key bytes,
-        RSA Public Key classes, Public key bytes
-    :rtype: tuple, (
-        ``cryptography.hazmat.backends.openssl.rsa._RSAPrivateKey``,
-        Private key bytes,
-        ``cryptography.hazmat.backends.openssl.rsa._RSAPublicKey``,
-        Public key bytes
-        )
+    :return: Ownca Key Data Structure
+    :rtype: ``ownca.crypto.keys.OwncaKeyData``
     """
 
     key = rsa.generate_private_key(
