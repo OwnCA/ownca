@@ -21,7 +21,7 @@ Basically in this three lines steps:
 
 1. Imported the ownca Certificate Authority library
 2. Created a new CA named as *Corp CA* that uses ``/opt/CA`` as CA storage for certificates, keys etc.
-3. Create a signed certificates by *Corp CA* server *www.mycorp.com*, the files are also stored in ``/opt/CA/certs/mycorp.com``.
+3. Create a signed certificates by *Corp CA* server *www.mycorp.com*, the files are also stored in ``/opt/CA/certs//www.example.com``.
 
    .. code-block:: python
 

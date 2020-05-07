@@ -23,7 +23,7 @@ Basically in this three lines steps:
  2. Created a new CA named as *Corp CA* that uses ```/opt/CA``` as CA storage
     for certificates, keys etc.
  3. Create a signed certificates by *Corp CA* server *www.mycorp.com*, 
- the files are also stored in ```/opt/CA/certs/mycorp.com```.
+ the files are also stored in ```/opt/CA/certs/www.example.com```.
  
     ```pycon
      >>> example_com.cert
