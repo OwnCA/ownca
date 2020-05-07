@@ -17,18 +17,17 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    # prepare the python requirements
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v1
       with:
         python-version: '3.7'
 
+    # Publishes the OwnCA new version in PyPi
     - name: Build the distribution
       run: python setup.py sdist
 
-    # Publishes the OwnCA new version in PyPi
     - name: Publish OnwCA to PyPI
       uses: pypa/gh-action-pypi-publish@master
       with:

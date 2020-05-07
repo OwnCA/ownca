@@ -13,6 +13,7 @@ requires = ["cryptography>=2.8", "voluptuous>=0.11.7"]
 test_requirements = ["pytest>=3"]
 about = {}
 
+
 class PyTest(TestCommand):
     user_options = [("pytest-args=", "a", "Arguments to pass into py.test")]
 
