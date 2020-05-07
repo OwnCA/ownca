@@ -25,6 +25,9 @@ jobs:
       with:
         python-version: '3.7'
 
+    - name: Build the distribution
+      run: python setup.py sdist
+
     # Publishes the OwnCA new version in PyPi
     - name: Publish OnwCA to PyPI
       uses: pypa/gh-action-pypi-publish@master

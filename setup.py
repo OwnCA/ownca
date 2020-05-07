@@ -8,6 +8,10 @@ from setuptools.command.test import test as TestCommand
 
 here = os.path.abspath(os.path.dirname(__file__))
 
+packages = ["ownca", "ownca/crypto"]
+requires = ["cryptography>=2.8", "voluptuous>=0.11.7"]
+test_requirements = ["pytest>=3"]
+about = {}
 
 class PyTest(TestCommand):
     user_options = [("pytest-args=", "a", "Arguments to pass into py.test")]
@@ -41,17 +45,9 @@ if sys.argv[-1] == "publish":
     os.system("twine upload dist/*")
     sys.exit()
 
-packages = ["ownca"]
-
-requires = ["cryptography>=2.8"]
-test_requirements = ["pytest>=3"]
-
-about = {}
 with open(os.path.join(here, "ownca", "__version__.py"), "r", "utf-8") as f:
     exec(f.read(), about)
 
-print(os.getcwd())
-print("#" * 80)
 with open("README.md", "r", "utf-8") as f:
     readme = f.read()
 
@@ -91,7 +87,7 @@ setup(
     tests_require=test_requirements,
     extras_require={},
     project_urls={
-        # 'Documentation': 'https://ownca.readthedocs.io',
-        "Source": "https://github.com/kairoaraujo/ownca"
+        "Documentation": "https://ownca.readthedocs.io",
+        "Source": "https://github.com/OwnCa/ownca"
     },
 )
