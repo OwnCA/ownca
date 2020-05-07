@@ -128,7 +128,7 @@ def issue_cert(
 
         return builder
 
-    if maximum_days is None or 1 < maximum_days > 825:
+    if maximum_days is None or 0 < maximum_days > 826:
         raise ValueError("maximum_days is required: Minimum 1, Maximum 825")
 
     oids.append(x509.NameAttribute(NameOID.COMMON_NAME, common_name))
@@ -229,8 +229,9 @@ def ca_sign_csr(ca_cert, ca_key, csr, key, maximum_days=None):
     :rtype: ``cryptography.x509.Certificate``
     :raises: ``ValueError``
     """
-    if maximum_days is None or 1 < maximum_days > 825:
+    if maximum_days is None or 0 < maximum_days > 826:
         raise ValueError("Value is required: Minimum 1, Maximum 825")
+
     one_day = datetime.timedelta(1, 0, 0)
 
     certificate = x509.CertificateBuilder()

@@ -26,6 +26,12 @@ py38-tests:
 integration-tests:
 	tox -re integrations
 
+publish-test:
+	pip install 'twine>=1.5.0'
+	python setup.py sdist bdist_wheel
+	twine upload --repository testpypi dist/*
+	rm -fr build dist .egg requests.egg-info
+
 publish:
 	pip install 'twine>=1.5.0'
 	python setup.py sdist bdist_wheel
