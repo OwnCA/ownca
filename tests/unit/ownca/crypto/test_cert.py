@@ -39,7 +39,8 @@ def test_issue_cert_with_dns_names(
     mock__valid_certificate.return_value = fake_certificate
 
     cert = issue_cert(
-        ["OID"], maximum_days=1, dns_names=["fake-ca.com", "www.fake-ca.com"]
+        ["OID"], common_name="fake-ca", maximum_days=1,
+        dns_names=["fake-ca.com", "www.fake-ca.com"]
     )
 
     assert isinstance(cert, classmethod)
@@ -162,7 +163,9 @@ def test_ca_sign_csr(
     mock__valid_certificate, mock_x509, oids_sample, fake_certificate
 ):
 
-    mocked_csr = mock.MagicMock()
+    mocked_extensions = mock.MagicMock()
+    mocked_extensions.return_value.oid._name = "oids"
+    mocked_csr = mock.MagicMock(extensions=mocked_extensions)
     mocked_csr.subject.return_value = True
     mocked_key = mock.MagicMock()
     mocked_key.public_key.return_value = True

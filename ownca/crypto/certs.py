@@ -64,6 +64,7 @@ def _issuer_dns_subjectaltname(builder, c_name, dns_names):
     """
 
     if dns_names is not None:
+
         if type(dns_names) is not list:
             raise TypeError("dns_names require a list of strings.")
 
@@ -206,7 +207,7 @@ def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
     csr = csr_builder.sign(
         private_key=key, algorithm=hashes.SHA256(), backend=default_backend()
     )
-
+    #breakpoint()
     return _valid_csr(csr)
 
 
@@ -235,6 +236,15 @@ def ca_sign_csr(ca_cert, ca_key, csr, key, maximum_days=None):
 
     certificate = x509.CertificateBuilder()
     certificate = certificate.subject_name(csr.subject)
+
+    for extension in csr.extensions:
+        if extension.value.oid._name != "subjectAltName":
+            continue
+
+        certificate = certificate.add_extension(
+         extension.value, critical=extension.critical
+        )
+
     certificate = certificate.issuer_name(ca_cert.subject)
     certificate = certificate.public_key(csr.public_key())
     certificate = certificate.serial_number(uuid.uuid4().int)
