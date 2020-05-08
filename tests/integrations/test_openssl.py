@@ -129,8 +129,9 @@ def test_extension_subject_alternative_name():
     )
 
     expected_dns_san = (
-        "DNS:www.dev.ownca.org, DNS:developer.ownca.org, DNS:dev.ownca.org"
+        "DNS:www.dev.ownca.org, DNS:developer.ownca.org"
     )
+
     assert openssl.returncode == 0, openssl.stdout
     assert "Subject Alternative Name:" in openssl.stdout.decode()
     assert expected_dns_san in openssl.stdout.decode()

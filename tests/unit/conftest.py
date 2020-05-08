@@ -49,9 +49,14 @@ def fake_certificate():
 
 @pytest.fixture
 def fake_csr():
+
+    mocked_extension = mock.MagicMock()
+    mocked_extension.return_value.value.oid._name = ["OID", "SomeExtension"]
+
     fake_csr = mock.MagicMock()
     fake_csr.__class__ = classmethod
     fake_csr.public_bytes.return_value = "CSR"
+    fake_csr.return_value.extensions = mocked_extension
 
     return fake_csr
 

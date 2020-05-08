@@ -49,7 +49,7 @@ def _valid_csr(csr):
         return None
 
 
-def _issuer_dns_subjectaltname(builder, c_name, dns_names):
+def _add_dns_as_subjectaltname(builder, c_name, dns_names):
     """
     Add DNS Name (``cryptography.x509.DNSName``) and Subject Alternative
     Name (``cryptography.x509.SubjectAlternativeName``) to the certificate
@@ -86,6 +86,28 @@ def _issuer_dns_subjectaltname(builder, c_name, dns_names):
         builder = builder.add_extension(
             x509.SubjectAlternativeName([x509.DNSName(c_name)]),
             critical=False,
+        )
+
+    return builder
+
+
+def _add_subjectaltnames_sign_csr(builder, csr):
+    """
+    Adds to the certificate (during singing CSR) the SubjectAltNames.
+
+    :param builder: certificate builder
+    :type builder: ``cryptography.x509.CertificateBuilder()``, required
+    :param csr: CSR object
+    :type csr: ``cryptography.x509.CertificateSigningRequest``, required
+    :return: builder object
+    :rtype: ``cryptography.x509.CertificateBuilder()``
+    """
+    for extension in csr.extensions:
+        if extension.value.oid._name != "subjectAltName":
+            continue
+
+        builder = builder.add_extension(
+            extension.value, critical=extension.critical
         )
 
     return builder
@@ -144,7 +166,7 @@ def issue_cert(
             )
         )
 
-        builder = _issuer_dns_subjectaltname(
+        builder = _add_dns_as_subjectaltname(
             builder, ca_common_name, dns_names
         )
 
@@ -154,7 +176,7 @@ def issue_cert(
             x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
         )
 
-        builder = _issuer_dns_subjectaltname(builder, common_name, dns_names)
+        builder = _add_dns_as_subjectaltname(builder, common_name, dns_names)
 
     builder = builder.not_valid_before(datetime.datetime.today() - one_day)
     builder = builder.not_valid_after(
@@ -197,7 +219,7 @@ def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
     oids.append(x509.NameAttribute(NameOID.COMMON_NAME, common_name))
     csr_builder = csr_builder.subject_name(x509.Name(oids))
 
-    csr_builder = _issuer_dns_subjectaltname(
+    csr_builder = _add_dns_as_subjectaltname(
         csr_builder, common_name, dns_names
     )
 
@@ -236,15 +258,7 @@ def ca_sign_csr(ca_cert, ca_key, csr, key, maximum_days=None):
 
     certificate = x509.CertificateBuilder()
     certificate = certificate.subject_name(csr.subject)
-
-    for extension in csr.extensions:
-        if extension.value.oid._name != "subjectAltName":
-            continue
-
-        certificate = certificate.add_extension(
-         extension.value, critical=extension.critical
-        )
-
+    certificate = _add_subjectaltnames_sign_csr(certificate, csr)
     certificate = certificate.issuer_name(ca_cert.subject)
     certificate = certificate.public_key(csr.public_key())
     certificate = certificate.serial_number(uuid.uuid4().int)
