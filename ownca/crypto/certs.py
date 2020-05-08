@@ -49,6 +49,70 @@ def _valid_csr(csr):
         return None
 
 
+def _add_dns_as_subjectaltname(builder, c_name, dns_names):
+    """
+    Add DNS Name (``cryptography.x509.DNSName``) and Subject Alternative
+    Name (``cryptography.x509.SubjectAlternativeName``) to the certificate
+    object.
+
+    :param builder: the initiated builder ``x509.CertificateBuilder()``.
+    :type builder: object, required.
+    :param c_name: common name.
+    :type c_name: str, required.
+
+    :return: builder object ``x509.CertificateBuilder()``
+    """
+
+    if dns_names is not None:
+
+        if type(dns_names) is not list:
+            raise TypeError("dns_names require a list of strings.")
+
+        if len(dns_names) != 0:
+            if all(isinstance(item, str) for item in dns_names):
+                x509_dns_names = []
+                for dns_name in dns_names:
+                    x509_dns_names.append(x509.DNSName(dns_name))
+
+                builder = builder.add_extension(
+                    x509.SubjectAlternativeName(x509_dns_names),
+                    critical=False,
+                )
+
+            else:
+                raise TypeError("All DNS Names must to be string values.")
+
+    else:
+        builder = builder.add_extension(
+            x509.SubjectAlternativeName([x509.DNSName(c_name)]),
+            critical=False,
+        )
+
+    return builder
+
+
+def _add_subjectaltnames_sign_csr(builder, csr):
+    """
+    Adds to the certificate (during singing CSR) the SubjectAltNames.
+
+    :param builder: certificate builder
+    :type builder: ``cryptography.x509.CertificateBuilder()``, required
+    :param csr: CSR object
+    :type csr: ``cryptography.x509.CertificateSigningRequest``, required
+    :return: builder object
+    :rtype: ``cryptography.x509.CertificateBuilder()``
+    """
+    for extension in csr.extensions:
+        if extension.value.oid._name != "subjectAltName":
+            continue
+
+        builder = builder.add_extension(
+            extension.value, critical=extension.critical
+        )
+
+    return builder
+
+
 def issue_cert(
     oids,
     maximum_days=None,
@@ -85,49 +149,6 @@ def issue_cert(
     :rtype: ``cryptography.x509.Certificate``
     """
 
-    def _issuer_dns_subjectaltname(builder, c_name):
-        """
-        Add DNS Name (``cryptography.x509.DNSName``) and Subject Alternative
-        Name (``cryptography.x509.SubjectAlternativeName``) to the certificate
-        object.
-
-        :param builder: the initiated builder ``x509.CertificateBuilder()``.
-        :type builder: object, required.
-        :param c_name: common name.
-        :type c_name: str, required.
-
-        :return: builder object ``x509.CertificateBuilder()``
-        """
-        builder = builder.issuer_name(
-            x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, c_name)])
-        )
-
-        if dns_names is not None:
-            if type(dns_names) is not list:
-                raise TypeError("dns_names require a list of strings.")
-
-            if len(dns_names) != 0:
-                if all(isinstance(item, str) for item in dns_names):
-                    x509_dns_names = []
-                    for dns_name in dns_names:
-                        x509_dns_names.append(x509.DNSName(dns_name))
-
-                    builder = builder.add_extension(
-                        x509.SubjectAlternativeName(x509_dns_names),
-                        critical=False,
-                    )
-
-                else:
-                    raise TypeError("All DNS Names must to be string values.")
-
-        else:
-            builder = builder.add_extension(
-                x509.SubjectAlternativeName([x509.DNSName(c_name)]),
-                critical=False,
-            )
-
-        return builder
-
     if maximum_days is None or 0 < maximum_days > 826:
         raise ValueError("maximum_days is required: Minimum 1, Maximum 825")
 
@@ -139,10 +160,23 @@ def issue_cert(
     builder = builder.subject_name(x509.Name(oids))
 
     if host:
-        builder = _issuer_dns_subjectaltname(builder, ca_common_name)
+        builder = builder.issuer_name(
+            x509.Name(
+                [x509.NameAttribute(NameOID.COMMON_NAME, ca_common_name)]
+            )
+        )
+
+        builder = _add_dns_as_subjectaltname(
+            builder, ca_common_name, dns_names
+        )
 
     else:
-        builder = _issuer_dns_subjectaltname(builder, common_name)
+
+        builder = builder.issuer_name(
+            x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
+        )
+
+        builder = _add_dns_as_subjectaltname(builder, common_name, dns_names)
 
     builder = builder.not_valid_before(datetime.datetime.today() - one_day)
     builder = builder.not_valid_after(
@@ -185,21 +219,9 @@ def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
     oids.append(x509.NameAttribute(NameOID.COMMON_NAME, common_name))
     csr_builder = csr_builder.subject_name(x509.Name(oids))
 
-    if dns_names is not None:
-        if type(dns_names) is not list:
-            raise TypeError("dns_names require a list of strings.")
-
-        if len(dns_names) != 0:
-            if all(isinstance(item, str) for item in dns_names):
-                x509_dns_names = []
-                for dns_name in dns_names:
-                    x509_dns_names.append(x509.DNSName(dns_name))
-                csr_builder = csr_builder.add_extension(
-                    x509.SubjectAlternativeName(x509_dns_names), critical=False
-                )
-
-            else:
-                raise TypeError("All DNS Names must to be string values.")
+    csr_builder = _add_dns_as_subjectaltname(
+        csr_builder, common_name, dns_names
+    )
 
     csr_builder = csr_builder.add_extension(
         x509.BasicConstraints(ca=True, path_length=None), critical=False
@@ -236,6 +258,7 @@ def ca_sign_csr(ca_cert, ca_key, csr, key, maximum_days=None):
 
     certificate = x509.CertificateBuilder()
     certificate = certificate.subject_name(csr.subject)
+    certificate = _add_subjectaltnames_sign_csr(certificate, csr)
     certificate = certificate.issuer_name(ca_cert.subject)
     certificate = certificate.public_key(csr.public_key())
     certificate = certificate.serial_number(uuid.uuid4().int)

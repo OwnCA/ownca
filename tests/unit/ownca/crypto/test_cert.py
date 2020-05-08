@@ -11,6 +11,7 @@ from ownca.crypto.certs import (
     ca_sign_csr,
     _valid_cert,
     _valid_csr,
+    _add_subjectaltnames_sign_csr,
     x509,
 )
 
@@ -39,7 +40,8 @@ def test_issue_cert_with_dns_names(
     mock__valid_certificate.return_value = fake_certificate
 
     cert = issue_cert(
-        ["OID"], maximum_days=1, dns_names=["fake-ca.com", "www.fake-ca.com"]
+        ["OID"], common_name="fake-ca", maximum_days=1,
+        dns_names=["fake-ca.com", "www.fake-ca.com"]
     )
 
     assert isinstance(cert, classmethod)
@@ -159,20 +161,20 @@ def test_ca_sign_csr_without_maximum_days(
 @mock.patch("ownca.crypto.certs.x509")
 @mock.patch("ownca.crypto.certs._valid_cert")
 def test_ca_sign_csr(
-    mock__valid_certificate, mock_x509, oids_sample, fake_certificate
+    mock__valid_certificate, mock_x509, oids_sample, fake_certificate, fake_csr
 ):
 
-    mocked_csr = mock.MagicMock()
-    mocked_csr.subject.return_value = True
     mocked_key = mock.MagicMock()
     mocked_key.public_key.return_value = True
+
     mock_x509.subject_name.return_value = oids_sample
     mock_x509.AuthorityKeyIdentifier.from_issuer_public_key.return_value = True
     mock_x509.add_extension.return_value = fake_certificate
+
     mock__valid_certificate.return_value = fake_certificate
 
     cert = ca_sign_csr(
-        fake_certificate, "ca_key", mocked_csr, mocked_key, maximum_days=1
+        fake_certificate, "ca_key", fake_csr, mocked_key, maximum_days=1
     )
 
     assert isinstance(cert, classmethod)
@@ -196,3 +198,9 @@ def test_valid_csr():
 def test_valid_csr_false():
     fake_csr = mock.MagicMock(spec=dict)
     assert _valid_csr(fake_csr) is None
+
+
+@mock.patch("ownca.crypto.certs.x509")
+def test__add_subjectaltnames_sign_csr(mock_x509, fake_csr):
+
+    _add_subjectaltnames_sign_csr(mock_x509, fake_csr)

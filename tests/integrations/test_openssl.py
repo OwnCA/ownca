@@ -97,3 +97,41 @@ def test_validad_cert_sencond_ca():
 
     clean_test()
     clean_test("CA_test_second")
+
+
+def test_extension_subject_alternative_name():
+    """Test if OpenSSL gets correct Subject Alternative Name"""
+
+    clean_test()
+    clean_test("CA_test_second")
+    ca = CertificateAuthority(
+        common_name=CA_COMMON_NAME,
+        ca_storage=CA_STORAGE,
+        maximum_days=CA_MAXIMUM_DAYS,
+        dns_names=CA_DNS_NAMES,
+    )
+
+    ca.issue_certificate(
+        "dev.ownca.org",
+        maximum_days=30,
+        dns_names=["www.dev.ownca.org", "developer.ownca.org"],
+        oids={"country_name": "NL", "locality_name": "Veldhoven"},
+    )
+
+    openssl_cmd = (
+        "openssl x509 -text -noout -in "
+        + "CA_test/certs/dev.ownca.org/dev.ownca.org.crt "
+        + "-certopt no_subject,no_header,no_version,no_serial,no_signame,"
+        + "no_validity,no_issuer,no_pubkey,no_sigdump,no_aux"
+    )
+    openssl = subprocess.run(
+        openssl_cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+
+    expected_dns_san = (
+        "DNS:www.dev.ownca.org, DNS:developer.ownca.org"
+    )
+
+    assert openssl.returncode == 0, openssl.stdout
+    assert "Subject Alternative Name:" in openssl.stdout.decode()
+    assert expected_dns_san in openssl.stdout.decode()
