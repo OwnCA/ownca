@@ -229,7 +229,7 @@ def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
     csr = csr_builder.sign(
         private_key=key, algorithm=hashes.SHA256(), backend=default_backend()
     )
-    #breakpoint()
+
     return _valid_csr(csr)
 
 
