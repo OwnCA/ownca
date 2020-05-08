@@ -135,4 +135,3 @@ def test_extension_subject_alternative_name():
     assert openssl.returncode == 0, openssl.stdout
     assert "Subject Alternative Name:" in openssl.stdout.decode()
     assert expected_dns_san in openssl.stdout.decode()
-
