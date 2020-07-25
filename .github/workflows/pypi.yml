@@ -7,6 +7,8 @@ name: PyPI
 on:
   push:
     branches: [ master ]
+    tags:
+      - v[0-9]+.[0-9]+.*  # add .* to allow dev releases
     paths:
       - 'ownca/__version__.py'
 
@@ -22,7 +24,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v1
       with:
-        python-version: '3.7'
+        python-version: ['3.7', '3.8]'
 
     # Publishes the OwnCA new version in PyPi
     - name: Build the distribution
