@@ -21,21 +21,15 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v1
       with:
-        python-version: ['3.6', '3.7', '3.8']
+        python-version: '3.7'
 
     # Install dependencies
     - name: Install tox and coverage
       run: pip install tox coverage
 
     # Runs Python tests
-    - name: Run Python tests 3.6
-      run: make py36-tests
-
-    - name: Run Python tests 3.7
+    - name: Run Python tests
       run: make py37-tests
-
-    - name: Run Python tests 3.8
-      run: make py38-tests
 
     # Uploads the coverage
     - name: Upload coverage to Codecov

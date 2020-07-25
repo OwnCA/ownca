@@ -331,9 +331,9 @@ class CertificateAuthority:
         key_size = kwargs.get("key_size", 2048)
 
         if "oids" in kwargs:
-            # TODO: Fix Issue #4
+            # TODO: Fox Issue #4
             warnings.warn(
-                "The OIDS will be ignored on CA. It is NOT working. Issue #4"
+                "The OIDS will be ignored ot CA. It is NOT working. Issue #4"
                 + "Check out https://github.com/OwnCA/ownca/issues/4 ."
             )
             # self.oids = format_oids(kwargs["oids"])
