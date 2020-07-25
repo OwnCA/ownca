@@ -32,6 +32,9 @@ Basically in this three lines steps:
 Usage
 =====
 
+.. toctree::
+   :maxdepth: 4
+
 Creating a Certificate Authority
 --------------------------------
 
