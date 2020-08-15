@@ -9,6 +9,7 @@ from ownca.crypto.certs import (
     issue_cert,
     issue_csr,
     ca_sign_csr,
+    ca_crl,
     _valid_cert,
     _valid_csr,
     _add_subjectaltnames_sign_csr,

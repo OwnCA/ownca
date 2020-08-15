@@ -103,6 +103,7 @@ def test_owncacertdata_exception(mock__validate_owncacertdata):
                 "cert": "cert",
                 "cert_bytes": "cert_bytes",
                 "key": "key",
+                "crl": "crl",
                 "key_bytes": "key_bytes",
                 "public_key": "public_key",
                 "public_key_bytes": "public_key_bytes",
@@ -160,7 +161,8 @@ def test_load_cert_files(
     mock_serialization.load_ssh_public_key.return_value = mocked_public_key
 
     result = load_cert_files(
-        "fake-ca.com", "key_file", "public_key_file", "certificate_file"
+        "fake-ca.com", "key_file", "public_key_file", "certificate_file",
+        "crl_file"
     )
 
     assert isinstance(result.cert, classmethod)
@@ -183,13 +185,15 @@ def test_load_cert_files_inconsistent_certificate_data(
 
     with pytest.raises(OwnCAInconsistentData) as excinfo:
         load_cert_files(
-            "not-ca.com", "key_file", "public_key_file", "certificate_file"
+            "not-ca.com", "key_file", "public_key_file", "certificate_file",
+            "crl_file"
         )
 
         assert "not-ca.com" in excinfo.value
 
 
 @mock.patch("ownca.ownca.OwncaCertData")
+@mock.patch("ownca.ownca.ca_crl")
 @mock.patch("ownca.ownca.issue_cert")
 @mock.patch("ownca.ownca.format_oids")
 @mock.patch("ownca.ownca.store_file")
@@ -207,9 +211,11 @@ def test_certificateauthority_properties(
     mock_store_file,
     mock_format_oids,
     mock_ca_certificate,
+    mock_ca_crl,
     mock_OwncaCertData,
     ownca_directory,
     fake_certificate,
+    fake_crl,
     oids_sample,
     ownca_certdata,
     ownca_keydata,
@@ -220,6 +226,7 @@ def test_certificateauthority_properties(
     mock_format_oids.return_value = list(oids_sample.values())
     mock_keys.generate.return_value = ownca_keydata
     mock_store_file.return_value = True
+    mock_ca_crl.return_value = fake_crl
     mock_OwncaCertData.return_value = ownca_certdata
 
     mock_ca_certificate.return_value = fake_certificate
@@ -370,6 +377,7 @@ def test_certificateauthority__init__exc_no_common_name(
 
 
 @mock.patch("ownca.ownca.OwncaCertData")
+@mock.patch("ownca.ownca.ca_crl")
 @mock.patch("ownca.ownca.ca_sign_csr")
 @mock.patch("ownca.ownca.issue_csr")
 @mock.patch("ownca.ownca.format_oids")
@@ -383,10 +391,12 @@ def test_certificateauthority_issue_certificate(
     mock_format_oids,
     mock_issue_csr,
     mock_ca_sign_csr,
+    mock_ca_crl,
     mock_OwncaCertData,
     certificateauthority,
     fake_certificate,
     fake_csr,
+    fake_crl,
     oids_sample,
     ownca_keydata,
     ownca_certdata,
@@ -400,6 +410,7 @@ def test_certificateauthority_issue_certificate(
     mock_keys.generate.return_value = ownca_keydata
     mock_store_file.return_value = True
     mock_issue_csr.return_value = fake_csr
+    mock_ca_crl.return_value = fake_crl
     mock_ca_sign_csr.return_value = fake_certificate
     mock_OwncaCertData.return_value = ownca_certdata
 
@@ -422,7 +433,7 @@ def test_certificateauthority_issue_certificate(
 @mock.patch("ownca.ownca.store_file")
 @mock.patch("ownca.ownca.keys")
 @mock.patch("ownca.ownca.os")
-def test_test_certificateauthority_issue_certificate_without_oids(
+def test_certificateauthority_issue_certificate_without_oids(
     mock_os,
     mock_keys,
     mock_store_file,

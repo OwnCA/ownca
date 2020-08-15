@@ -5,11 +5,12 @@ Copyright (c) 2018-2020 Kairo de Araujo
 """
 
 # CA directories and files
-CA_PRIVATE_DIR = f"private"
-CA_CERTS_DIR = f"certs"
-CA_CERT = f"ca.crt"
+CA_PRIVATE_DIR = "private"
+CA_CERTS_DIR = "certs"
+CA_CERT = "ca.crt"
 CA_KEY = f"{CA_PRIVATE_DIR}/ca_key.pem"
-CA_PUBLIC_KEY = f"ca_key.pub"
+CA_PUBLIC_KEY = "ca_key.pub"
+CA_CRL = "ca.crl"
 
 # Supported OIDS
 OIDS = [
