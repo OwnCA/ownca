@@ -33,3 +33,9 @@ class OwnCAFatalError(Exception):
     """No controlled Error, fatal error"""
 
     pass
+
+
+class OwnCAInvalidCertificate(Exception):
+    """The certificate is invalid or not found"""
+
+    pass

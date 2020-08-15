@@ -11,6 +11,8 @@ from cryptography.x509.oid import NameOID
 import datetime
 import uuid
 
+one_day = datetime.timedelta(1, 0, 0)
+
 
 def _valid_cert(certificate):
     """
@@ -154,7 +156,6 @@ def issue_cert(
 
     oids.append(x509.NameAttribute(NameOID.COMMON_NAME, common_name))
 
-    one_day = datetime.timedelta(1, 0, 0)
     builder = x509.CertificateBuilder()
 
     builder = builder.subject_name(x509.Name(oids))
@@ -254,8 +255,6 @@ def ca_sign_csr(ca_cert, ca_key, csr, key, maximum_days=None):
     if maximum_days is None or 0 < maximum_days > 826:
         raise ValueError("Value is required: Minimum 1, Maximum 825")
 
-    one_day = datetime.timedelta(1, 0, 0)
-
     certificate = x509.CertificateBuilder()
     certificate = certificate.subject_name(csr.subject)
     certificate = _add_subjectaltnames_sign_csr(certificate, csr)
@@ -300,3 +299,45 @@ def ca_sign_csr(ca_cert, ca_key, csr, key, maximum_days=None):
     )
 
     return _valid_cert(certificate)
+
+
+def ca_crl(
+    ca_cert,
+    ca_key=None,
+    common_name=None,
+    certificates_revoke=None
+):
+    """
+    Generates the CA Certificate Revocation List (CRL)
+
+    :param ca_cert: CA certificate object ``cryptography.x509.Certificate``
+    :type ca_cert: object, required.
+    :param ca_key: CA key object ``cryptography.hazmat.backends.openssl.rsa``
+    :type ca_key: object, required.
+    :param common_name: Common Name when issuing Certificate Authority cert.
+    :type common_name: string, required.
+    :param certificates_revoke: List of certificates to be revoked, if none \
+    an empty list is returned
+    :type certificates_revoke: list of \
+    ``cryptography.hazmat.backends.openssl.x509._RevokedCertificate``,
+    optional.
+
+    :return: Certificate Revocation List object
+    :rtype:
+    ``cryptography.hazmat.backends.openssl.x509._CertificateRevocationList``
+    """
+    builder = x509.CertificateRevocationListBuilder()
+    builder = builder.issuer_name(ca_cert.subject)
+    builder = builder.last_update(datetime.datetime.today())
+    builder = builder.next_update(datetime.datetime.today() + one_day)
+
+    if certificates_revoke:
+        for certificate in certificates_revoke:
+            builder = builder.add_revoked_certificate(certificate)
+
+    crl = builder.sign(
+        private_key=ca_key, algorithm=hashes.SHA256(),
+        backend=default_backend()
+    )
+
+    return crl

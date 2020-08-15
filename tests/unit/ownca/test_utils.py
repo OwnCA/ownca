@@ -75,6 +75,7 @@ def test_ownca_directory(mock__create_ownca_dir, mock_glob, mock_os):
         "ca_home": "test_dir",
         "certificate": True,
         "key": True,
+        "crl": True,
         "public_key": True,
     }
 
