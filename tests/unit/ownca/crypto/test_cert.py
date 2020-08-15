@@ -204,4 +204,20 @@ def test_valid_csr_false():
 @mock.patch("ownca.crypto.certs.x509")
 def test__add_subjectaltnames_sign_csr(mock_x509, fake_csr):
 
-    _add_subjectaltnames_sign_csr(mock_x509, fake_csr)
+    _add_subjectaltnames_sign_csr(mock_x509, fake_csr) is None
+
+
+@mock.patch("ownca.crypto.certs.x509")
+def test_ca_crl(mock_x509, fake_certificate):
+
+    mocked_crl_builder = mock.MagicMock()
+    mocked_crl_builder.__class__ = classmethod
+    mocked_crl_builder.issuer_name.return_value = True
+    mocked_crl_builder.last_update.return_value = "today"
+    mocked_crl_builder.next_update.return_value = "tomorrow"
+    mocked_crl_builder.sign.return_value = "signed!"
+    mocked_crl_builder.add_revoked_certificate.return_value = True
+
+    x509.CertificateRevocationListBuilder.return_value = mocked_crl_builder
+
+    ca_crl(fake_certificate)

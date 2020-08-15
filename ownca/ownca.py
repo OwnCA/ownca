@@ -580,6 +580,13 @@ class CertificateAuthority:
 
     @property
     def certificates(self):
+        """
+        Get the CA list of issued/managed certificates
+
+        :return: List of certificates (default is host/domain)
+        :rtype: list
+        """
+
         host_cert_dir = f"{self.ca_storage}/{CA_CERTS_DIR}"
         certificate_list = list()
 

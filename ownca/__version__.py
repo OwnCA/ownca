@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Copyright (c) 2018, 2019 Kairo de Araujo
+Copyright (c) 2018-2020 Kairo de Araujo
 """
 
 __title__ = "OwnCA"
@@ -11,4 +11,4 @@ __version__ = "0.1.0a1"
 __author__ = "Kairo de Araujo"
 __author_email__ = "kairo@dearaujo.nl"
 __license__ = "Apache 2.0"
-__copyright__ = "Copyright 2019-2020 Kairo de Araujo"
+__copyright__ = "2018-2020, Kairo de Araujo"

@@ -15,13 +15,13 @@ import sys
 
 sys.path.insert(0, os.path.abspath("../../"))
 
-from ownca.__version__ import __version__
+from ownca.__version__ import (__version__, __copyright__, __author__)
 
 # -- Project information -----------------------------------------------------
 
 project = "ownca"
-copyright = "2019, Kairo de Araujo"
-author = "Kairo de Araujo"
+copyright = __copyright__
+author = __author__
 
 # The full version, including alpha/beta/rc tags
 release = __version__
