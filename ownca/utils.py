@@ -4,6 +4,7 @@
 Copyright (c) 2018-2020 Kairo de Araujo
 """
 
+from datetime import datetime
 from glob import glob
 import os
 import re
@@ -135,6 +136,12 @@ def store_file(file_data, file_path, permission=None, force=False):
     """
     if os.path.isfile(file_path) and force is False:
         raise FileExistsError(f"{file_path} already exists.")
+
+    else:
+        os.copy(
+            file_path,
+            f"{file_path}_backup_{datetime.now().strftime('%d%m%Y%H%M%S.%f')}"
+        )
 
     try:
         with open(file_path, "w") as f:
