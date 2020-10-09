@@ -20,7 +20,6 @@ from tests.integrations.conftest import (
 
 def test_ca():
     """Test if CA is initialize as expected."""
-
     clean_test()
     ca = CertificateAuthority(
         common_name=CA_COMMON_NAME,
@@ -31,6 +30,7 @@ def test_ca():
     assert ca.status == {
         "certificate": True,
         "key": True,
+        "crl": True,
         "public_key": True,
         "ca_home": CA_STORAGE,
     }
