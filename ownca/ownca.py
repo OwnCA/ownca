@@ -11,17 +11,23 @@ from cryptography.hazmat.backends.openssl.rsa import (
 )
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.backends.openssl.x509 import (
+    _CertificateRevocationList,
+    _RevokedCertificate
+)
 from cryptography.x509.oid import NameOID
+import datetime
 import os
 import re
 from voluptuous import Schema, MultipleInvalid
 import warnings
 
 from .crypto import keys
-from .crypto.certs import issue_cert, issue_csr, ca_sign_csr
+from .crypto.certs import issue_cert, issue_csr, ca_sign_csr, ca_crl
 from ._constants import (
     CA_CERT,
     CA_CERTS_DIR,
+    CA_CRL,
     CA_KEY,
     CA_PUBLIC_KEY,
     COUNTRY_REGEX,
@@ -29,11 +35,12 @@ from ._constants import (
     OIDS,
 )
 from .exceptions import (
+    OwnCAFatalError,
     OwnCAInconsistentData,
+    OwnCAInvalidCertificate,
+    OnwCAInvalidDataStructure,
     OwnCAInvalidFiles,
     OwnCAInvalidOID,
-    OnwCAInvalidDataStructure,
-    OwnCAFatalError,
 )
 from .utils import (
     ownca_directory,
@@ -44,6 +51,15 @@ from .utils import (
 
 
 def _validate_owncacertdata(data):
+    """
+    Validates the OwnCA data structure
+
+    :param data: Certificate data
+    :type data: dict
+    :return : None
+    :raises: ``exceptions.OnwCAInvalidDataStructure``
+
+    """
     cert_schema = Schema(
         {
             "cert": x509.Certificate,
@@ -52,6 +68,8 @@ def _validate_owncacertdata(data):
             "key_bytes": bytes,
             "public_key": _RSAPublicKey,
             "public_key_bytes": bytes,
+            "crl": _CertificateRevocationList,
+            "crl_bytes": bytes,
         }
     )
 
@@ -79,12 +97,15 @@ class OwncaCertData(object):
             "public_key":
              cryptography.hazmat.backends.openssl.rsa._RSAPrivateKey,
             "public_key_bytes": bytes,
+            "crl":
+             cryptography.hazmat.backends.openssl.rsa._RSAPublicKey,
+             "crl_bytes": bytes
          }
      :type data: dict
 
      :return: OwncaCertData
      :rtype: ``ownca.ownca.OwncaCertData``
-     :raises: ``OnwCAInvalidDataStructure``
+     :raises: ``exceptions.OnwCAInvalidDataStructure``
      """
 
     def __init__(self, data):
@@ -156,6 +177,28 @@ class OwncaCertData(object):
         :rtype: bytes
         """
         return self.data["public_key_bytes"]
+
+    @property
+    def crl(self):
+        """
+        Method to get the certificate revocation list (crl)
+
+        :return: certificate revocation list (crl)
+        :rtype:
+        ``cryptography.hazmat.backends.openssl.x509.\
+        _CertificateRevocationList``
+        """
+        return self.data["crl"]
+
+    @property
+    def crl_bytes(self):
+        """
+        Method to get the certificate revocation list (crl)
+
+        :return: certificate revocation list (crl)
+        :rtype: bytes
+        """
+        return self.data["crl_bytes"]
 
 
 def format_oids(oids_parameters):
@@ -237,8 +280,27 @@ def format_oids(oids_parameters):
     return oids
 
 
-def load_cert_files(common_name, key_file, public_key_file, certificate_file):
+def load_cert_files(
+    common_name, key_file, public_key_file, certificate_file, crl_file
+):
+    """Loads the certificate, keys and revoked list files from storage
 
+    :param common_name: Common Name for CA
+    :type common_name: str, required when there is no CA
+    :param key_file: key file full path
+    :type key_file: str, required
+    :param public_key_file: public key file full path
+    :type public_key_file: str, required
+    :param certificate_file: certificate file full path
+    :type certificate_file: str, required
+    :param crl_file: certificate revocation list file full path
+    :type key_file: str, required
+
+    :return: ``OwncaCertData``
+    :raises: ``OwnCAInconsistentData``
+    """
+
+    # certificate
     with open(certificate_file, "rb") as cert_f:
         cert_data = cert_f.read()
 
@@ -256,6 +318,7 @@ def load_cert_files(common_name, key_file, public_key_file, certificate_file):
             + f"common_name: {current_cn_name}"
         )
 
+    # key
     with open(key_file, "rb") as key_f:
         key_data = key_f.read()
 
@@ -280,6 +343,19 @@ def load_cert_files(common_name, key_file, public_key_file, certificate_file):
         serialization.Encoding.OpenSSH, serialization.PublicFormat.OpenSSH
     )
 
+    # certificate revocation list (crl)
+    # if there is not crl file it is created (backward compatible)
+    try:
+        with open(crl_file, "rb") as crl_f:
+            crl_data = crl_f.read()
+
+        crl = x509.load_pem_x509_crl(crl_data, default_backend())
+
+    except FileNotFoundError:
+        crl = ca_crl(ca_cert=certificate, ca_key=key, common_name=common_name)
+
+    crl_bytes = crl.public_bytes(encoding=serialization.Encoding.PEM)
+
     return OwncaCertData(
         {
             "cert": certificate,
@@ -288,6 +364,8 @@ def load_cert_files(common_name, key_file, public_key_file, certificate_file):
             "key_bytes": key_bytes,
             "public_key": public_key,
             "public_key_bytes": public_key_bytes,
+            "crl": crl,
+            "crl_bytes": crl_bytes
         }
     )
 
@@ -296,7 +374,6 @@ class CertificateAuthority:
     """The primary Python OWNCA class.
 
     This class initializes the Certificate Authority (CA).
-
 
     :param ca_storage: path where CA files and hosts files are stored. Default
         is the current directory (``os.getcwd()``)
@@ -393,6 +470,27 @@ class CertificateAuthority:
         return ownca_directory(self.ca_storage)
 
     @property
+    def crl(self):
+        """Get CA certificate revocation list (crl)
+
+        :return: certificate class
+        :rtype: class, ``cryptography.hazmat.backends.openssl.x509.\
+            _CertificateRevocationList``
+        """
+
+        return self._crl
+
+    @property
+    def crl_bytes(self):
+        """Get CA certificate revocation list (crl)
+
+        :return: certificate class
+        :rtype: bytes
+        """
+
+        return self._crl_bytes
+
+    @property
     def cert(self):
         """Get CA certificate
 
@@ -480,6 +578,25 @@ class CertificateAuthority:
             "x",
         )
 
+    @property
+    def certificates(self):
+        """
+        Get the CA list of issued/managed certificates
+
+        :return: List of certificates (default is host/domain)
+        :rtype: list
+        """
+
+        host_cert_dir = f"{self.ca_storage}/{CA_CERTS_DIR}"
+        certificate_list = list()
+
+        for content in os.listdir(host_cert_dir):
+            if not os.path.isdir(f"{host_cert_dir}/{content}"):
+                continue
+            certificate_list.append(content)
+
+        return certificate_list
+
     def _update(self, cert_data):
         """
         Update certificate data in the instance.
@@ -494,6 +611,8 @@ class CertificateAuthority:
         self._key_bytes = cert_data.key_bytes
         self._public_key = cert_data.public_key
         self._public_key_bytes = cert_data.public_key_bytes
+        self._crl = cert_data.crl
+        self._crl_bytes = cert_data.crl_bytes
 
     def initialize(
         self,
@@ -528,6 +647,7 @@ class CertificateAuthority:
         private_ca_key_file = f"{self.ca_storage}/{CA_KEY}"
         public_ca_key_file = f"{self.ca_storage}/{CA_PUBLIC_KEY}"
         certificate_file = f"{self.ca_storage}/{CA_CERT}"
+        crl_file = f"{self.ca_storage}/{CA_CRL}"
 
         if self.current_ca_status is True:
             cert_data = load_cert_files(
@@ -535,6 +655,7 @@ class CertificateAuthority:
                 key_file=private_ca_key_file,
                 public_key_file=public_ca_key_file,
                 certificate_file=certificate_file,
+                crl_file=crl_file
             )
 
             return cert_data
@@ -563,6 +684,19 @@ class CertificateAuthority:
                 raise OwnCAFatalError(self.status)
 
             else:
+
+                crl = ca_crl(
+                    certificate,
+                    ca_key=key.key,
+                    common_name=common_name,
+                )
+
+                crl_bytes = crl.public_bytes(
+                    encoding=serialization.Encoding.PEM
+                )
+
+                store_file(crl_bytes, crl_file)
+
                 certificate_bytes = certificate.public_bytes(
                     encoding=serialization.Encoding.PEM
                 )
@@ -577,6 +711,8 @@ class CertificateAuthority:
                         "key_bytes": key.key_bytes,
                         "public_key": key.public_key,
                         "public_key_bytes": key.public_key_bytes,
+                        "crl": crl,
+                        "crl_bytes": crl_bytes
                     }
                 )
 
@@ -634,6 +770,7 @@ class CertificateAuthority:
         host_public_path = f"{host_cert_dir}/{hostname}.pub"
         host_csr_path = f"{host_cert_dir}/{hostname}.csr"
         host_cert_path = f"{host_cert_dir}/{hostname}.crt"
+        crl_file = f"{self.ca_storage}/{CA_CRL}"
 
         files = {
             "certificate": host_cert_path,
@@ -650,6 +787,7 @@ class CertificateAuthority:
                 key_file=host_key_path,
                 public_key_file=host_public_path,
                 certificate_file=host_cert_path,
+                crl_file=crl_file
             )
 
         else:
@@ -700,12 +838,97 @@ class CertificateAuthority:
                     "key_bytes": key_data.key_bytes,
                     "public_key": key_data.public_key,
                     "public_key_bytes": key_data.public_key_bytes,
+                    "crl": self.crl,
+                    "crl_bytes": self.crl_bytes
                 }
             )
 
         host = HostCertificate(common_name, files, cert_data)
 
         return host
+
+    def load_certificate(self, hostname):
+        host_cert_dir = f"{self.ca_storage}/{CA_CERTS_DIR}/{hostname}"
+        if not os.path.isdir(host_cert_dir):
+            raise OwnCAInvalidCertificate(
+                f"The certificate does not exist for '{hostname}'."
+            )
+
+        return self.issue_certificate(hostname)
+
+    def revoke_certificate(self, hostname, common_name=None):
+        if not validate_hostname(hostname):
+            raise TypeError(
+                "Invalid 'hostname'. Hostname must to be a string following "
+                + f"the hostname rules r'{HOSTNAME_REGEX}'"
+            )
+
+        certificate = self.load_certificate(hostname)
+
+        if certificate.revoked:
+            return None
+
+        host_cert_dir = f"{self.ca_storage}/{CA_CERTS_DIR}/{hostname}"
+        host_key_path = f"{host_cert_dir}/{hostname}.pem"
+        host_public_path = f"{host_cert_dir}/{hostname}.pub"
+        host_cert_path = f"{host_cert_dir}/{hostname}.crt"
+        crl_file = f"{self.ca_storage}/{CA_CRL}"
+
+        if common_name is None:
+            common_name = hostname
+
+        if not os.path.isdir(host_cert_dir):
+            raise OwnCAInvalidCertificate(
+                f"The certificate does not exist for '{hostname}'."
+            )
+
+        cert_data = load_cert_files(
+            common_name=common_name,
+            key_file=host_key_path,
+            public_key_file=host_public_path,
+            certificate_file=host_cert_path,
+            crl_file=crl_file
+        )
+
+        certificates_revoke = list()
+        for revoked in self.crl:
+            certificates_revoke.append(revoked)
+
+        revoke_cert = x509.RevokedCertificateBuilder().serial_number(
+            cert_data.cert.serial_number
+        ).revocation_date(
+            datetime.datetime.today()
+        ).build(default_backend())
+
+        certificates_revoke.append(revoke_cert)
+
+        crl = ca_crl(
+            self.cert,
+            ca_key=self.key,
+            common_name=common_name,
+            certificates_revoke=certificates_revoke
+        )
+
+        crl_bytes = crl.public_bytes(
+            encoding=serialization.Encoding.PEM
+        )
+
+        ca_cert = OwncaCertData(
+            {
+                "cert": self.cert,
+                "cert_bytes": self.cert_bytes,
+                "key": self.key,
+                "key_bytes": self.key_bytes,
+                "public_key": self.public_key,
+                "public_key_bytes": self.public_key_bytes,
+                "crl": crl,
+                "crl_bytes": crl_bytes
+            }
+        )
+
+        store_file(crl_bytes, crl_file, force=True)
+
+        self._update(ca_cert)
 
 
 class HostCertificate:
@@ -732,11 +955,15 @@ class HostCertificate:
     """
 
     def __init__(self, common_name, files, cert_data):
-        """HostCertificate constructor method"""
+        """Host Certificate constructor method"""
 
         self._common_name = common_name
         self._files = files
         self.cert_data = cert_data
+        self._revoked = \
+            self.cert_data.crl.get_revoked_certificate_by_serial_number(
+                self.cert_data.cert.serial_number
+            )
 
     @property
     def cert(self):
@@ -807,3 +1034,19 @@ class HostCertificate:
         """
 
         return self._common_name
+
+    @property
+    def revoked(self):
+        """
+        Get revoked state
+
+        :return: True when revoked and False when valid.
+        :rtype: str
+        """
+        if type(self._revoked) == _RevokedCertificate:
+
+            return True
+
+        else:
+
+            return False

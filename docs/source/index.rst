@@ -55,6 +55,7 @@ The Certificate Authority has built in methods such as
 
 - `common_name <ownca.html#ownca.ownca.CertificateAuthority.common_name>`_
 - `cert <ownca.html#ownca.ownca.CertificateAuthority.cert>`_
+- `certificates <ownca.html#ownca.ownca.CertificateAuthority.certificates>`_
 - `cert_bytes <ownca.html#ownca.ownca.CertificateAuthority.cert_bytes>`_
 - `key <ownca.html#ownca.ownca.CertificateAuthority.key>`_
 - `key_bytes <ownca.html#ownca.ownca.CertificateAuthority.key_bytes>`_
@@ -148,6 +149,7 @@ The Certificate Authority has built in methods such as
 - `key_bytes <ownca.html#ownca.ownca.HostCertificate.key_bytes>`_
 - `public_key <ownca.html#ownca.ownca.HostCertificate.public_key>`_
 - `public_key_bytes <ownca.html#ownca.ownca.HostCertificate.public_key_bytes>`_
+- `revoked <ownca.html#ownca.ownca.HostCertificate.revoked>`_
 
 See `HostCertificate <ownca.html#ownca.ownca.HostCertificate>`_ for
 more details.
@@ -170,7 +172,7 @@ Example:
 
 .. code-block:: python
 
-   >>> load_cert = ca_corp.issue_certificate("www.example.com", dns_names=["www.example.com", "w3.example.com"], oids={"country_name": "BR", "locality_name": "Uba"})
+   >>> load_cert = ca_corp.load_certificate("www.example.com")
    >>> load_cert.cert == example_com.cert
    True
 

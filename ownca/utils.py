@@ -4,13 +4,14 @@
 Copyright (c) 2018-2020 Kairo de Araujo
 """
 
-import os
 from glob import glob
+import os
 import re
 
 from ._constants import (
     CA_CERT,
     CA_CERTS_DIR,
+    CA_CRL,
     CA_KEY,
     CA_PUBLIC_KEY,
     CA_PRIVATE_DIR,
@@ -74,7 +75,8 @@ def ownca_directory(ca_storage):
     .. code-block:: python
 
         {
-            'certificate': bool,
+            "certificate": bool,
+            "crl": bool,
             "key": bool,
             "public_key": bool,
             "ca_home": None or str,
@@ -84,6 +86,7 @@ def ownca_directory(ca_storage):
 
     ownca_status = {
         "certificate": False,
+        "crl": False,
         "key": False,
         "public_key": False,
         "ca_home": None,
@@ -105,6 +108,9 @@ def ownca_directory(ca_storage):
     if os.path.isfile(f"{ca_storage}/{CA_CERT}"):
         ownca_status["certificate"] = True
 
+    if os.path.isfile(f"{ca_storage}/{CA_CRL}"):
+        ownca_status["crl"] = True
+
     if os.path.isfile(f"{ca_storage}/{CA_KEY}"):
         ownca_status["key"] = True
 
@@ -114,7 +120,7 @@ def ownca_directory(ca_storage):
     return ownca_status
 
 
-def store_file(file_data, file_path, permission=None):
+def store_file(file_data, file_path, permission=None, force=False):
     """
     Stores (write) files in the storage
 
@@ -127,7 +133,7 @@ def store_file(file_data, file_path, permission=None):
     :return: bool
     :rtype: boolean
     """
-    if os.path.isfile(file_path):
+    if os.path.isfile(file_path) and force is False:
         raise FileExistsError(f"{file_path} already exists.")
 
     try:
