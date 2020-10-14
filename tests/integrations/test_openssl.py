@@ -17,7 +17,7 @@ from tests.integrations.conftest import (
 
 
 def test_valid_cert_ca():
-    """Test if OpenSSL is able to validate the certificate against CA."""
+    """Int Test: if OpenSSL is able to validate the certificate against CA."""
 
     clean_test()
     ca = CertificateAuthority(
@@ -49,7 +49,7 @@ def test_valid_cert_ca():
 
 
 def test_validad_cert_sencond_ca():
-    """Test if OpenSSL FAILS to validate certificate against other CA"""
+    """Int Test: if OpenSSL FAILS to validate certificate against other CA"""
 
     clean_test()
     clean_test("CA_test_second")
@@ -100,7 +100,7 @@ def test_validad_cert_sencond_ca():
 
 
 def test_extension_subject_alternative_name():
-    """Test if OpenSSL gets correct Subject Alternative Name"""
+    """Int Test: if OpenSSL gets correct Subject Alternative Name"""
 
     clean_test()
     clean_test("CA_test_second")
@@ -138,7 +138,7 @@ def test_extension_subject_alternative_name():
 
 
 def test_create_certificate_and_revoke():
-    """Test if revoked certificate shows in CRL"""
+    """Int Test: if revoked certificate shows in CRL"""
 
     clean_test()
     clean_test("CA_test_second")

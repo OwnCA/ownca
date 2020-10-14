@@ -33,3 +33,5 @@ dist
 htmlcov/
 ownca.egg-info/
 .DS_Store
+CA_test*
+ICA_test*

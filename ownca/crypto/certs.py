@@ -234,7 +234,7 @@ def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
     return _valid_csr(csr)
 
 
-def ca_sign_csr(ca_cert, ca_key, csr, key, maximum_days=None):
+def ca_sign_csr(ca_cert, ca_key, csr, public_key, maximum_days=None):
     """
     Sign a Certificate Signing Request
 
@@ -287,8 +287,7 @@ def ca_sign_csr(ca_cert, ca_key, csr, key, maximum_days=None):
     )
     certificate = certificate.add_extension(
         extension=x509.AuthorityKeyIdentifier.from_issuer_public_key(
-            # TODO: Do not ask for the key but Public Key only.
-            key.public_key()
+            public_key
         ),
         critical=False,
     )

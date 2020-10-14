@@ -6,8 +6,10 @@
 
 from cryptography import x509
 from cryptography.hazmat.backends.openssl import rsa
+import pytest
 
 from ownca import CertificateAuthority
+from ownca.exceptions import OwnCAIntermediate
 from tests.integrations.conftest import (
     CA_STORAGE,
     CA_COMMON_NAME,
@@ -15,11 +17,12 @@ from tests.integrations.conftest import (
     CA_MAXIMUM_DAYS,
     CA_DNS_NAMES,
     clean_test,
+    ICA_STORAGE
 )
 
 
 def test_ca():
-    """Test if CA is initialize as expected."""
+    """Int Test: if CA is initialize as expected."""
     clean_test()
     ca = CertificateAuthority(
         common_name=CA_COMMON_NAME,
@@ -30,9 +33,11 @@ def test_ca():
     assert ca.status == {
         "certificate": True,
         "key": True,
+        "csr": False,
         "crl": True,
         "public_key": True,
         "ca_home": CA_STORAGE,
+        "type": "Certificate Authority"
     }
 
     assert isinstance(ca.cert, x509.Certificate)
@@ -44,7 +49,7 @@ def test_ca():
 
 
 def test_ca_load():
-    """Test if loading the existent CA from CA Storage is consistent"""
+    """Int Test: loading the existent CA from CA Storage is consistent"""
 
     clean_test()
     ca = CertificateAuthority(
@@ -70,7 +75,7 @@ def test_ca_load():
 
 
 def test_ca_issue_cert():
-    """Test CA issuing a certificate"""
+    """Int Test: CA issuing a certificate"""
 
     cert_oids = {
         "country_name": "BR",
@@ -98,12 +103,13 @@ def test_ca_issue_cert():
     assert type(cert1.public_key_bytes) == bytes
     assert cert1.public_key_bytes.startswith(b"ssh-rsa")
     assert cert1.common_name == cert_common_name
+    assert ca.certificates == ["home.ownca.org"]
 
     clean_test()
 
 
 def test_ca_issue_cert_loaded_by_second_ca_instance():
-    """Test CA issuing a certificate and consistence second instance"""
+    """Int Test: CA issuing a certificate and consistence second instance"""
 
     cert_oids = {
         "country_name": "BR",
@@ -146,3 +152,113 @@ def test_ca_issue_cert_loaded_by_second_ca_instance():
     assert cert1.common_name == cert1_loaded.common_name
 
     clean_test()
+
+
+def test_ica():
+    """Int Test: if Intermediate CA is initialize as expected."""
+    clean_test(path="ICA_test")
+    ca = CertificateAuthority(
+        common_name=CA_COMMON_NAME,
+        ca_storage=ICA_STORAGE,
+        maximum_days=CA_MAXIMUM_DAYS,
+        intermediate=True
+    )
+
+    assert ca.status == {
+        "certificate": False,
+        "key": True,
+        "csr": True,
+        "crl": False,
+        "public_key": True,
+        "ca_home": ICA_STORAGE,
+        "type": "Intermediate Certificate Authority"
+    }
+
+    with pytest.raises(OwnCAIntermediate) as err:
+        ca.cert
+        assert (
+            "Intermediate Certificate Authority has not a signed " +
+            "certificate file in CA Storage"
+        ) in err.value
+
+
+    assert isinstance(ca.key, rsa.RSAPrivateKeyWithSerialization)
+    assert type(ca.public_key_bytes) == bytes
+    assert ca.public_key_bytes.startswith(b"ssh-rsa")
+    assert ca.common_name == CA_COMMON_NAME
+
+
+def test_ica_load():
+    """Int Test: loading the existent CA from CA Storage is consistent"""
+
+    clean_test(path="ICA_test")
+    ica = CertificateAuthority(
+        common_name=CA_COMMON_NAME,
+        ca_storage=ICA_STORAGE,
+        dns_name=CA_DNS_NAMES,
+        intermediate=True,
+    )
+
+    ica_loaded = CertificateAuthority(
+        common_name=CA_COMMON_NAME,
+        ca_storage=ICA_STORAGE,
+        dns_name=CA_DNS_NAMES,
+        intermediate=True,
+    )
+
+    assert ica.status == ica_loaded.status
+    assert ica.type == "Intermediate Certificate Authority"
+    assert ica.cert_bytes == ica_loaded.cert_bytes
+    assert ica.key_bytes == ica.key_bytes
+    assert ica.common_name == ica_loaded.common_name
+    assert ica.public_key_bytes == ica_loaded.public_key_bytes
+    assert ica.csr == ica_loaded.csr
+    assert ica.csr_bytes == ica_loaded.csr_bytes
+
+    clean_test(path="ICA_test")
+
+
+def test_ca_sign_ica():
+    """Int Test: A CA will sign an ICA CSR request"""
+
+    clean_test(path="ICA_test")
+    clean_test(path="CA_test")
+    ca = CertificateAuthority(
+        common_name=CA_COMMON_NAME,
+        ca_storage=CA_STORAGE,
+        dns_name=CA_DNS_NAMES,
+    )
+
+    ica = CertificateAuthority(
+        common_name="ica.dev.ownca.org",
+        ca_storage=ICA_STORAGE,
+        dns_name=CA_DNS_NAMES,
+        intermediate=True,
+    )
+
+    # before siging it shows the exception OwnCAIntermediate
+    with pytest.raises(OwnCAIntermediate) as err:
+        ica.cert
+        assert (
+            "Intermediate Certificate Authority has not a signed " +
+            "certificate file in CA Storage"
+        ) in err.value
+
+    ica_certificate = ca.sign_csr(ica.csr, ica.public_key)
+
+    with open(f"{ICA_STORAGE}/ca.crt", 'w') as ca_cert_file:
+        ca_cert_file.write(ica_certificate.cert_bytes.decode())
+        ca_cert_file.close()
+
+    ica = CertificateAuthority(
+        common_name="ica.dev.ownca.org",
+        ca_storage=ICA_STORAGE,
+        dns_name=CA_DNS_NAMES,
+        intermediate=True,
+    )
+
+    assert isinstance(ca.cert, x509.Certificate)
+    assert ca.type == "Certificate Authority"
+    assert ica.type == "Intermediate Certificate Authority"
+    assert ica.cert.subject.rfc4514_string() == 'CN=ica.dev.ownca.org'
+    assert ica.cert.issuer.rfc4514_string() == 'CN=ownca.org'

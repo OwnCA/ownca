@@ -15,16 +15,17 @@ py36-tests:
 
 py37-tests:
 	tox -re py37,pep8
-	coverage xml -i
-	coverage html -i
 
 py38-tests:
 	tox -re py38,pep8
-	coverage xml -i
-	coverage html -i
 
 integration-tests:
 	tox -re integrations
+
+all-tests:
+	tox -re all_tests
+	coverage xml -i
+	coverage html -i
 
 publish-test:
 	pip install 'twine>=1.5.0'

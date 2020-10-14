@@ -11,6 +11,11 @@ class OwnCAInconsistentData(Exception):
     pass
 
 
+class OwnCAIntermediate(Exception):
+    """CA is a Intermediate Certificate Authority missing certificate file"""
+    pass
+
+
 class OwnCAInvalidFiles(Exception):
     """CA Files are inconsistent."""
 
