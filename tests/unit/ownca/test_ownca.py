@@ -161,8 +161,45 @@ def test_load_cert_files(
     mock_serialization.load_ssh_public_key.return_value = mocked_public_key
 
     result = load_cert_files(
-        "fake-ca.com", "key_file", "public_key_file", "certificate_file",
-        "crl_file"
+        "fake-ca.com", "key_file", "public_key_file", "csr_file",
+        "certificate_file", "crl_file"
+    )
+
+    assert isinstance(result.cert, classmethod)
+    assert result.cert_bytes == "Cert"
+    assert result.key_bytes == "Key"
+    assert result.public_key_bytes == b"ssh-rsa ..."
+
+
+@mock.patch("ownca.ownca._validate_owncacertdata")
+@mock.patch("ownca.ownca.serialization")
+@mock.patch("ownca.ownca.x509")
+@mock.patch("builtins.open")
+def test_load_cert_files_no_csr_files(
+    mock_file,
+    mock_x509,
+    mock_serialization,
+    mock_validate_owncacertdata_schema,
+    fake_certificate,
+):
+
+    mock.mock_open(mock_file)
+    mock_validate_owncacertdata_schema.return_value = None
+
+    mocked_key = mock.MagicMock()
+    mocked_key.__class__ = classmethod
+    mocked_key.private_bytes.return_value = "Key"
+    mock_x509.load_pem_x509_certificate.return_value = fake_certificate
+    fake_certificate.public_bytes.return_value = "Cert"
+    mock_serialization.load_pem_private_key.return_value = mocked_key
+    mocked_public_key = mock.MagicMock()
+    mocked_public_key.__class__ = classmethod
+    mocked_public_key.public_bytes.return_value = b"ssh-rsa ..."
+    mock_serialization.load_ssh_public_key.return_value = mocked_public_key
+
+    result = load_cert_files(
+        "fake-ca.com", "key_file", "public_key_file", "csr_file",
+        "certificate_file", "crl_file"
     )
 
     assert isinstance(result.cert, classmethod)
@@ -185,8 +222,8 @@ def test_load_cert_files_inconsistent_certificate_data(
 
     with pytest.raises(OwnCAInconsistentData) as excinfo:
         load_cert_files(
-            "not-ca.com", "key_file", "public_key_file", "certificate_file",
-            "crl_file"
+            "not-ca.com", "key_file", "public_key_file", "crl_file",
+            "certificate_file", "crl_file"
         )
 
         assert "not-ca.com" in excinfo.value

@@ -5,18 +5,21 @@ Copyright (c) 2018-2020 Kairo de Araujo
 """
 
 from glob import glob
+import inspect
 import os
 import re
 
 from ._constants import (
     CA_CERT,
     CA_CERTS_DIR,
+    CA_CSR,
     CA_CRL,
     CA_KEY,
     CA_PUBLIC_KEY,
     CA_PRIVATE_DIR,
     HOSTNAME_REGEX,
 )
+from .exceptions import OwnCAIntermediate
 
 
 def file_data_status(ca_status):
@@ -30,8 +33,9 @@ def file_data_status(ca_status):
     :return: True, False or None
     :rtype: bool/None
     """
-    key = ca_status["key"]
-    cert = ca_status["certificate"]
+    key = ca_status.get("key")
+    cert = ca_status.get("certificate")
+    csr = ca_status.get("csr")
 
     # this check if the CA has the key and certificates files in disk
     # if both are true, means the health status is True
@@ -40,6 +44,9 @@ def file_data_status(ca_status):
 
     # if certificate and key does not match and one of then are True, is not ok
     elif key != cert and key or cert:
+        if csr:
+            raise OwnCAIntermediate("Intermediate CA Missing the certificate.")
+
         return False
 
     # in that case, the system has not a CA configured.
@@ -83,13 +90,19 @@ def ownca_directory(ca_storage):
         }
 
     """
+    if "CA_test".lower() in ca_storage.lower() and not os.getenv("TEST_MODE"):
+        raise ValueError(
+            f"Not allowed {ca_storage}. Please do not use a name that contains 'ca_test'"
+        )
 
     ownca_status = {
+        "type": "Certificate Authority",
+        "ca_home": None,
         "certificate": False,
         "crl": False,
+        "csr": False,
         "key": False,
         "public_key": False,
-        "ca_home": None,
     }
 
     if not os.path.isdir(ca_storage):
@@ -107,6 +120,10 @@ def ownca_directory(ca_storage):
 
     if os.path.isfile(f"{ca_storage}/{CA_CERT}"):
         ownca_status["certificate"] = True
+
+    if os.path.isfile(f"{ca_storage}/{CA_CSR}"):
+        ownca_status["csr"] = True
+        ownca_status["type"] = "Intermediate Certificate Authority"
 
     if os.path.isfile(f"{ca_storage}/{CA_CRL}"):
         ownca_status["crl"] = True

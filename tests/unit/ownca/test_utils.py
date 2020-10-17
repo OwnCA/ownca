@@ -76,7 +76,9 @@ def test_ownca_directory(mock__create_ownca_dir, mock_glob, mock_os):
         "certificate": True,
         "key": True,
         "crl": True,
+        "csr": True,
         "public_key": True,
+        "type": "Intermediate Certificate Authority"
     }
 
 

@@ -29,19 +29,15 @@ jobs:
 
     # Runs Python tests
     - name: Run Python tests
-      run: make py37-tests
+      run: make all-tests
 
     # Uploads the coverage
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
-        flags: unittests
+        flags: all-tests
         name: coverage
         fail_ci_if_error: true
-
-    # Run integration tests:
-    - name: Run Integration tests
-      run: make integration-tests
 
     # Docs
     - name: Install docs dependecies

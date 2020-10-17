@@ -11,6 +11,7 @@ CA_CERT = "ca.crt"
 CA_KEY = f"{CA_PRIVATE_DIR}/ca_key.pem"
 CA_PUBLIC_KEY = "ca_key.pub"
 CA_CRL = "ca.crl"
+CA_CSR = "ca.csr"
 
 # Supported OIDS
 OIDS = [

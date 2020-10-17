@@ -6,7 +6,9 @@ Copyright (c) 2018-2020 Kairo de Araujo
 import os
 import shutil
 
+
 CA_STORAGE = "CA_test"
+ICA_STORAGE = "ICA_test"
 CA_COMMON_NAME = "ownca.org"
 CA_OIDS = {
     "country_name": "BR",
