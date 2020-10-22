@@ -886,6 +886,8 @@ class CertificateAuthority:
         key_size=2048,
     ):
         """
+        Issues a new certificate signed by the CA
+
         :param hostname: Hostname
         :type hostname: str, required
         :param maximum_days: Certificate maximum days duration
@@ -1004,6 +1006,8 @@ class CertificateAuthority:
 
     def load_certificate(self, hostname):
         """
+        Loads an existent certificate.
+
         :param hostname: Hostname (common name)
         :type hostname: str, required
         :return: host object
@@ -1019,6 +1023,9 @@ class CertificateAuthority:
 
     def revoke_certificate(self, hostname, common_name=None):
         """
+        Revokes an existent certificate owned by CA. It also updates the CA
+        Certificate Revoked List.
+
         :param hostname: Hostname
         :type hostname: str, required
         :param common_name: Common Name (CN) when loading existent certificate
@@ -1103,6 +1110,8 @@ class CertificateAuthority:
 
     def sign_csr(self, csr, csr_public_key, maximum_days=825):
         """
+        Signs an Certificate Sigining Request and generates the certificates.
+
         :param hostname: Hostname
         :type hostname: str, required
         :param csr: Certificate Signing Request Object
