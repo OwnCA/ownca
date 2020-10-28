@@ -1,6 +1,6 @@
--i https://pypi.org/simple
-cffi==1.14.0
-cryptography==2.9.2
+-i https://pypi.org/simple/
+cffi==1.14.3
+cryptography==3.2
 pycparser==2.20
-six==1.14.0
+six==1.15.0
 voluptuous==0.11.7
