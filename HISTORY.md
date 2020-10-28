@@ -8,6 +8,11 @@ dev
 
 -   \[Short description of non-trivial change.\]
 
+0.1.1
+-----
+- Security update for cryptography dependency
+
+
 0.1.0
 -----
 
