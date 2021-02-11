@@ -1,6 +1,6 @@
 -i https://pypi.org/simple
 voluptuous==0.11.7
-cryptography==3.2
+cryptography==3.3.2
 sphinx-rtd-theme==0.4.3
 sphinx==2.2.1
 sphinxcontrib-applehelp==1.0.1
