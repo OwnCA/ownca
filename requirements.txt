@@ -1,5 +1,5 @@
 -i https://pypi.org/simple/
-cffi==1.14.4
+cffi==1.14.5
 cryptography==3.3.2
 pycparser==2.20
 six==1.15.0

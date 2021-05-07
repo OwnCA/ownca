@@ -8,7 +8,7 @@ chardet==4.0.0
 codecov==2.0.22
 coverage==5.1
 distlib==0.3.1
-docutils==0.16
+docutils==0.17
 entrypoints==0.3
 filelock==3.0.12
 flake8==3.7.9
@@ -23,7 +23,7 @@ pluggy==0.13.1
 py==1.10.0
 pycodestyle==2.5.0
 pyflakes==2.1.1
-pygments==2.7.4
+pygments==2.8.1
 pyparsing==2.4.7
 pytest==5.4.1
 pytz==2021.1
@@ -40,6 +40,6 @@ sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.4
 toml==0.10.2
 tox==3.14.6
-urllib3==1.26.3
-virtualenv==20.4.2
+urllib3==1.26.4
+virtualenv==20.4.3
 wcwidth==0.2.5
