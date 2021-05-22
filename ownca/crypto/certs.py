@@ -268,7 +268,7 @@ def ca_sign_csr(ca_cert, ca_key, csr, public_key, maximum_days=None):
         datetime.datetime.today() + (one_day * maximum_days)
     )
     certificate = certificate.add_extension(
-        extension=x509.KeyUsage(
+        x509.KeyUsage(
             digital_signature=True,
             key_encipherment=True,
             content_commitment=True,
@@ -282,11 +282,11 @@ def ca_sign_csr(ca_cert, ca_key, csr, public_key, maximum_days=None):
         critical=True,
     )
     certificate = certificate.add_extension(
-        extension=x509.BasicConstraints(ca=True, path_length=None),
+        x509.BasicConstraints(ca=True, path_length=None),
         critical=True,
     )
     certificate = certificate.add_extension(
-        extension=x509.AuthorityKeyIdentifier.from_issuer_public_key(
+        x509.AuthorityKeyIdentifier.from_issuer_public_key(
             public_key
         ),
         critical=False,
