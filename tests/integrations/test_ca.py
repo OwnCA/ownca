@@ -5,7 +5,7 @@
 #
 
 from cryptography import x509
-from cryptography.hazmat.backends.openssl import rsa
+from cryptography.hazmat.primitives.asymmetric import rsa
 import pytest
 
 from ownca import CertificateAuthority
