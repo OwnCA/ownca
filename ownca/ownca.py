@@ -705,11 +705,11 @@ class CertificateAuthority:
         :rtype: list
         """
 
-        host_cert_dir = f"{self.ca_storage}/{CA_CERTS_DIR}"
+        host_cert_dir = os.path.join(self.ca_storage, CA_CERTS_DIR)
         certificate_list = list()
 
         for content in os.listdir(host_cert_dir):
-            if not os.path.isdir(f"{host_cert_dir}/{content}"):
+            if not os.path.isdir(os.path.join(host_cert_dir, content)):
                 continue
             certificate_list.append(content)
 
@@ -767,11 +767,11 @@ class CertificateAuthority:
             )
         """
 
-        private_ca_key_file = f"{self.ca_storage}/{CA_KEY}"
-        public_ca_key_file = f"{self.ca_storage}/{CA_PUBLIC_KEY}"
-        certificate_file = f"{self.ca_storage}/{CA_CERT}"
-        csr_file = f"{self.ca_storage}/{CA_CSR}"
-        crl_file = f"{self.ca_storage}/{CA_CRL}"
+        private_ca_key_file = os.path.join(self.ca_storage, CA_KEY)
+        public_ca_key_file = os.path.join(self.ca_storage, CA_PUBLIC_KEY)
+        certificate_file = os.path.join(self.ca_storage, CA_CERT)
+        csr_file = os.path.join(self.ca_storage, CA_CSR)
+        crl_file = os.path.join(self.ca_storage, CA_CRL)
 
         if self.current_ca_status is True:
             cert_data = load_cert_files(
@@ -921,12 +921,12 @@ class CertificateAuthority:
                 + f"the hostname rules r'{HOSTNAME_REGEX}'"
             )
 
-        host_cert_dir = f"{self.ca_storage}/{CA_CERTS_DIR}/{hostname}"
-        host_key_path = f"{host_cert_dir}/{hostname}.pem"
-        host_public_path = f"{host_cert_dir}/{hostname}.pub"
-        host_csr_path = f"{host_cert_dir}/{hostname}.csr"
-        host_cert_path = f"{host_cert_dir}/{hostname}.crt"
-        crl_file = f"{self.ca_storage}/{CA_CRL}"
+        host_cert_dir = os.path.join(self.ca_storage, CA_CERTS_DIR, hostname)
+        host_key_path = os.path.join(host_cert_dir, f"{hostname}.pem")
+        host_public_path = os.path.join(host_cert_dir, f"{hostname}.pub")
+        host_csr_path = os.path.join(host_cert_dir, f"{hostname}.csr")
+        host_cert_path = os.path.join(host_cert_dir, f"{hostname}.crt")
+        crl_file = os.path.join(self.ca_storage, CA_CRL)
 
         files = {
             "certificate": host_cert_path,
@@ -1013,7 +1013,7 @@ class CertificateAuthority:
         :return: host object
         :rtype: ``ownca.ownca.HostCertificate``
         """
-        host_cert_dir = f"{self.ca_storage}/{CA_CERTS_DIR}/{hostname}"
+        host_cert_dir = os.path.join(self.ca_storage, CA_CERTS_DIR, hostname)
         if not os.path.isdir(host_cert_dir):
             raise OwnCAInvalidCertificate(
                 f"The certificate does not exist for '{hostname}'."
@@ -1044,12 +1044,12 @@ class CertificateAuthority:
         if certificate.revoked:
             return None
 
-        host_cert_dir = f"{self.ca_storage}/{CA_CERTS_DIR}/{hostname}"
-        host_key_path = f"{host_cert_dir}/{hostname}.pem"
-        host_csr_path = f"{host_cert_dir}/{hostname}.csr"
-        host_public_path = f"{host_cert_dir}/{hostname}.pub"
-        host_cert_path = f"{host_cert_dir}/{hostname}.crt"
-        crl_file = f"{self.ca_storage}/{CA_CRL}"
+        host_cert_dir = os.path.join(self.ca_storage, CA_CERTS_DIR, hostname)
+        host_key_path = os.path.join(host_cert_dir, f"{hostname}.pem")
+        host_csr_path = os.path.join(host_cert_dir, f"{hostname}.csr")
+        host_public_path = os.path.join(host_cert_dir, f"{hostname}.pub")
+        host_cert_path = os.path.join(host_cert_dir, f"{hostname}.crt")
+        crl_file = os.path.join(self.ca_storage, CA_CRL)
 
         if common_name is None:
             common_name = hostname
@@ -1138,7 +1138,7 @@ class CertificateAuthority:
         csr_bytes = csr.public_bytes(
             encoding=serialization.Encoding.PEM
         )
-        host_cert_dir = f"{self.ca_storage}/{CA_CERTS_DIR}/{common_name}"
+        host_cert_dir = os.path.join(self.ca_storage, CA_CERTS_DIR, common_name)
 
         certificate = ca_sign_csr(
             self.cert, self.key, csr, csr_public_key,
@@ -1146,9 +1146,9 @@ class CertificateAuthority:
         )
 
         os.mkdir(host_cert_dir)
-        host_public_path = f"{host_cert_dir}/{common_name}.pub"
-        host_csr_path = f"{host_cert_dir}/{common_name}.csr"
-        host_cert_path = f"{host_cert_dir}/{common_name}.crt"
+        host_public_path = os.path.join(host_cert_dir, f"{common_name}.pub")
+        host_csr_path = os.path.join(host_cert_dir, f"{common_name}.csr")
+        host_cert_path = os.path.join(host_cert_dir, f"{common_name}.crt")
 
         store_file(csr_public_key_bytes, host_public_path)
 
