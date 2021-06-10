@@ -112,26 +112,27 @@ def ownca_directory(ca_storage):
     current_subdirs = glob(f"{ca_storage}/*")
 
     for ownca_subdir in ownca_subdirs:
-        if f"{ca_storage}/{ownca_subdir}" not in current_subdirs:
+        ca_storage_sub_dir = os.path.join(ca_storage, ownca_subdir)
+        if ca_storage_sub_dir not in current_subdirs:
             ownca_status["ca_home"] = "Inconsistent!"
-            _create_ownca_dir(f"{ca_storage}/{ownca_subdir}")
+            _create_ownca_dir(ca_storage_sub_dir)
 
     ownca_status["ca_home"] = ca_storage
 
-    if os.path.isfile(f"{ca_storage}/{CA_CERT}"):
+    if os.path.isfile(os.path.join(ca_storage, CA_CERT)):
         ownca_status["certificate"] = True
 
-    if os.path.isfile(f"{ca_storage}/{CA_CSR}"):
+    if os.path.isfile(os.path.join(ca_storage, CA_CSR)):
         ownca_status["csr"] = True
         ownca_status["type"] = "Intermediate Certificate Authority"
 
-    if os.path.isfile(f"{ca_storage}/{CA_CRL}"):
+    if os.path.isfile(os.path.join(ca_storage, CA_CRL)):
         ownca_status["crl"] = True
 
-    if os.path.isfile(f"{ca_storage}/{CA_KEY}"):
+    if os.path.isfile(os.path.join(ca_storage, CA_KEY)):
         ownca_status["key"] = True
 
-    if os.path.isfile(f"{ca_storage}/{CA_PUBLIC_KEY}"):
+    if os.path.isfile(os.path.join(ca_storage, CA_PUBLIC_KEY)):
         ownca_status["public_key"] = True
 
     return ownca_status
