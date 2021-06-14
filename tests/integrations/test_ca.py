@@ -55,13 +55,13 @@ def test_ca_load():
     ca = CertificateAuthority(
         common_name=CA_COMMON_NAME,
         ca_storage=CA_STORAGE,
-        dns_name=CA_DNS_NAMES,
+        dns_names=CA_DNS_NAMES,
     )
 
     ca_loaded = CertificateAuthority(
         common_name=CA_COMMON_NAME,
         ca_storage=CA_STORAGE,
-        dns_name=CA_DNS_NAMES,
+        dns_names=CA_DNS_NAMES,
     )
 
     assert ca.status == ca_loaded.status
@@ -195,14 +195,14 @@ def test_ica_load():
     ica = CertificateAuthority(
         common_name=CA_COMMON_NAME,
         ca_storage=ICA_STORAGE,
-        dns_name=CA_DNS_NAMES,
+        dns_names=CA_DNS_NAMES,
         intermediate=True,
     )
 
     ica_loaded = CertificateAuthority(
         common_name=CA_COMMON_NAME,
         ca_storage=ICA_STORAGE,
-        dns_name=CA_DNS_NAMES,
+        dns_names=CA_DNS_NAMES,
         intermediate=True,
     )
 
@@ -226,13 +226,13 @@ def test_ca_sign_ica():
     ca = CertificateAuthority(
         common_name=CA_COMMON_NAME,
         ca_storage=CA_STORAGE,
-        dns_name=CA_DNS_NAMES,
+        dns_names=CA_DNS_NAMES,
     )
 
     ica = CertificateAuthority(
         common_name="ica.dev.ownca.org",
         ca_storage=ICA_STORAGE,
-        dns_name=CA_DNS_NAMES,
+        dns_names=CA_DNS_NAMES,
         intermediate=True,
     )
 
@@ -253,7 +253,7 @@ def test_ca_sign_ica():
     ica = CertificateAuthority(
         common_name="ica.dev.ownca.org",
         ca_storage=ICA_STORAGE,
-        dns_name=CA_DNS_NAMES,
+        dns_names=CA_DNS_NAMES,
         intermediate=True,
     )
 
