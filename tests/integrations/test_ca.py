@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2020 Kairo de Araujo
+# Copyright 2020,2021 Kairo de Araujo
 #
 
 from cryptography import x509
@@ -180,7 +180,6 @@ def test_ica():
             "Intermediate Certificate Authority has not a signed " +
             "certificate file in CA Storage"
         ) in err.value
-
 
     assert isinstance(ca.key, rsa.RSAPrivateKeyWithSerialization)
     assert type(ca.public_key_bytes) == bytes

@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Copyright (c) 2018-2020 Kairo de Araujo
+Copyright (c) 2018-2021 Kairo de Araujo
 """
 
 from glob import glob
-import inspect
 import os
 import re
 
@@ -92,7 +91,8 @@ def ownca_directory(ca_storage):
     """
     if "CA_test".lower() in ca_storage.lower() and not os.getenv("TEST_MODE"):
         raise ValueError(
-            f"Not allowed {ca_storage}. Please do not use a name that contains 'ca_test'"
+            f"Not allowed {ca_storage}. Please do not use a name that "
+            + "contains 'ca_test'"
         )
 
     ownca_status = {

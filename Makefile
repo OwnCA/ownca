@@ -4,7 +4,7 @@ init:
 	pipenv install --dev
 
 all-tests:
-	tox -r
+	tox -re all_tests,pep8
 	coverage xml -i
 	coverage html -i
 
@@ -22,10 +22,6 @@ py38-tests:
 integration-tests:
 	tox -re integrations
 
-all-tests:
-	tox -re all_tests
-	coverage xml -i
-	coverage html -i
 
 publish-test:
 	pip install 'twine>=1.5.0'

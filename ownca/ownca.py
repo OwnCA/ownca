@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Copyright (c) 2018-2020 Kairo de Araujo
+Copyright (c) 2018-2021 Kairo de Araujo
 """
 
 from cryptography import x509
@@ -1138,7 +1138,9 @@ class CertificateAuthority:
         csr_bytes = csr.public_bytes(
             encoding=serialization.Encoding.PEM
         )
-        host_cert_dir = os.path.join(self.ca_storage, CA_CERTS_DIR, common_name)
+        host_cert_dir = os.path.join(
+            self.ca_storage, CA_CERTS_DIR, common_name
+        )
 
         certificate = ca_sign_csr(
             self.cert, self.key, csr, csr_public_key,
