@@ -2,7 +2,7 @@
 [![Documentation Status](https://readthedocs.org/projects/ownca/badge/?version=latest)](https://ownca.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/OwnCA/ownca/branch/master/graph/badge.svg)](https://codecov.io/gh/OwnCA/ownca)
 [![pypi](https://img.shields.io/pypi/v/ownca.svg)](https://pypi.python.org/pypi/ownca)
-[![pypi Downloads](https://img.shields.io/pypi/dm/ownca)](https://img.shields.io/pypi/dm/ownca)
+[![pypi Downloads](https://img.shields.io/pypi/dm/ownca)](https://pypistats.org/packages/ownca)
 [![pypi](https://img.shields.io/pypi/l/ownca.svg)](https://pypi.python.org/pypi/ownca)
 
 Python Own Certificate Authority (ownca)
