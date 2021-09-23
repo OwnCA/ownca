@@ -913,7 +913,6 @@ class CertificateAuthority:
         :type public_exponent: int, default: 65537
         :param key_size: Key size
         :type key_size: int, default: 2048
-        :param hostname:
         :return: host object
         :rtype: ``ownca.ownca.HostCertificate``
         """

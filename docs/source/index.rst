@@ -9,6 +9,32 @@
 Python Own Certificate Authority (ownca)
 ========================================
 
+.. image:: https://github.com/OwnCA/ownca/workflows/Tests/badge.svg
+   :target: https://github.com/OwnCA/ownca/actions?query=workflow%3ATests
+   :alt: Build Status
+
+.. image:: https://readthedocs.org/projects/ownca/badge/?version=latest
+   :target: https://ownca.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+
+.. image:: https://codecov.io/gh/OwnCA/ownca/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/OwnCA/ownca
+   :alt: Coverage
+
+.. image:: https://img.shields.io/pypi/v/ownca.svg
+   :target: https://pypi.python.org/pypi/ownca
+   :alt: PyPI Version
+
+.. image:: https://img.shields.io/pypi/dm/ownca
+   :target: https://pypistats.org/packages/ownca
+   :alt: PyPI Downloads
+
+.. image:: https://img.shields.io/pypi/l/ownca.svg
+   :target: https://pypi.python.org/pypi/ownca
+   :alt: License
+
+
+
 OwnCA makes easy handle Certificate Authority (CA) and manage certificates
 for hosts, servers or clients.
 
