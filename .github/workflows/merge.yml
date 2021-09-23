@@ -19,9 +19,9 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-    - uses: actions/setup-python@v1
+    - uses: actions/setup-python@v2
       with:
-        python-version: '3.7'
+        python-version: '3.9'
 
     # Install dependencies
     - name: Install tox and coverage
