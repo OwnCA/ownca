@@ -21,7 +21,7 @@ jobs:
       run: pip install tox tox-gh-actions coverage
 
     - name: Run Python tests
-      run: make py${{ matrix.python-version }}-tests
+      run: tox
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
