@@ -18,7 +18,7 @@ jobs:
         python-version: ${{ matrix.python-versions }}
 
     - name: Install tox and coverage
-      run: pip install tox coverage
+      run: pip install tox tox-gh-actions coverage
 
     - name: Run Python tests
       run: make py${{ matrix.python-version }}-tests

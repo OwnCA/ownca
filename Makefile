@@ -3,19 +3,23 @@ init:
 	pip install pipenv --upgrade
 	pipenv install --dev
 
-
-py3.7-tests:
-	tox -re py37,pep8,integrations
+all-tests:
+	tox -r
 	coverage xml -i
 	coverage html -i
 
-py3.8-tests:
-	tox -re py38,pep8,integrations
+py37-tests:
+	tox -re py37,pep8
 	coverage xml -i
 	coverage html -i
 
-py3.9-tests:
-	tox -re py39,pep8,integrations
+py38-tests:
+	tox -re py38,pep8
+	coverage xml -i
+	coverage html -i
+
+py39-tests:
+	tox -re py39,pep8
 	coverage xml -i
 	coverage html -i
 
