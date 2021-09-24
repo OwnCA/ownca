@@ -17,11 +17,9 @@ jobs:
       with:
         python-version: '3.9'
 
-    # Publishes the new version in PyPi test
     - name: Build the distribution
       run: python setup.py sdist
 
-    # PyPI publish
     - name: Publish distribution 📦 to Test PyPI
       uses: pypa/gh-action-pypi-publish@master
       with:

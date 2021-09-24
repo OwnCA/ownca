@@ -18,7 +18,7 @@ jobs:
       run: pip install tox coverage
 
     - name: Run Python tests
-      run: make all-tests
+      run: make py3.9-tests
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
