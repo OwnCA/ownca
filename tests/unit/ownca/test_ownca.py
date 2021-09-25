@@ -134,6 +134,20 @@ def test_format_oids_bad_country_name():
         assert "must be ISO 3166-1 (alfa-2)" in excinfo.value
 
 
+def test_format_oids_empty_strings(oids_sample):
+    for oid in oids_sample:
+        oids_sample[oid] = ""
+    result = format_oids(oids_sample)
+    assert result == []
+
+
+def test_format_oids_none_values(oids_sample):
+    for oid in oids_sample:
+        oids_sample[oid] = None
+    result = format_oids(oids_sample)
+    assert result == []
+
+
 @mock.patch("ownca.ownca._validate_owncacertdata")
 @mock.patch("ownca.ownca.serialization")
 @mock.patch("ownca.ownca.x509")
