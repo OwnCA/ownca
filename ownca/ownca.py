@@ -249,10 +249,11 @@ def format_oids(oids_parameters):
     for oid in oids_parameters:
         if oid in OIDS:
             current_oid = oids_parameters[oid]
+            if not current_oid:
+                continue
+
             if type(current_oid) is not str:
                 raise TypeError(f"'{oid}' must be str")
-            if not current_oid:  # oid empty, skip
-                continue
 
             if oid == "country_name":
                 # country name ISO 3166-1 (alfa-2)
