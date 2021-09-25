@@ -12,11 +12,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-python@v1
+    - uses: actions/setup-python@v2
       with:
-        python-version: '3.7'
+        python-version: '3.9'
 
-    # Publishes the new version in PyPi test
     - name: Build the distribution
       run: python setup.py sdist
 
