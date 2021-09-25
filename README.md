@@ -23,9 +23,9 @@ Basically in this three lines steps:
  1. Imported the ownca Certificate Authority library
  2. Created a new CA named as *Corp CA* that uses ```/opt/CA``` as CA storage
     for certificates, keys etc.
- 3. Create a signed certificates by *Corp CA* server *www.mycorp.com*, 
+ 3. Create a signed certificate by *Corp CA* server *www.mycorp.com*,
  the files are also stored in ```/opt/CA/certs/www.example.com```.
- 
+
     ```pycon
      >>> example_com.cert
      <Certificate(subject=<Name(CN=www.example.com)>, ...)>
@@ -45,3 +45,24 @@ pip install ownca
 Documentation
 =============
 Visit [http://ownca.readthedocs.org](http://ownca.readthedocs.org)
+
+
+Development
+===========
+
+Preparing environment
+---------------------
+
+```shell
+$ git clone git@github.com:OwnCA/ownca.git
+$ cd ownca
+$ pipenv shell
+$ pipenv install -d
+```
+
+Case you have macOS M1
+
+```shell
+$ pip uninstall cryptography cffi
+$ LDFLAGS=-L$(brew --prefix libffi)/lib CFLAGS=-I$(brew --prefix libffi)/include pip install cffi cryptography rust --no-binary :all:
+```
