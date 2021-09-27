@@ -4,20 +4,24 @@ init:
 	pipenv install --dev
 
 all-tests:
-	tox -re all_tests,pep8
-	coverage xml -i
-	coverage html -i
-
-py36-tests:
-	tox -re py36,pep8
+	tox -r
 	coverage xml -i
 	coverage html -i
 
 py37-tests:
 	tox -re py37,pep8
+	coverage xml -i
+	coverage html -i
 
 py38-tests:
 	tox -re py38,pep8
+	coverage xml -i
+	coverage html -i
+
+py39-tests:
+	tox -re py39,pep8
+	coverage xml -i
+	coverage html -i
 
 integration-tests:
 	tox -re integrations
