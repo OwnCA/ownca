@@ -1069,8 +1069,7 @@ class CertificateAuthority:
             certificate_file=host_cert_path,
             crl_file=crl_file
         )
-        certificates_revoke=[ revoked for revoked in self.crl]
-        
+        certificates_revoke= [revoked for revoked in self.crl]    
         revoke_cert = x509.RevokedCertificateBuilder().serial_number(
             cert_data.cert.serial_number
         ).revocation_date(
