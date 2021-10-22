@@ -9,7 +9,7 @@ from setuptools.command.test import test as TestCommand
 here = os.path.abspath(os.path.dirname(__file__))
 
 packages = ["ownca", "ownca/crypto"]
-requires = ["cryptography>=3.2", "voluptuous>=0.11.7"]
+requires = ["cryptography<35.0.0,>=3.4.6", "voluptuous>=0.11.7"]
 test_requirements = ["pytest>=3"]
 about = {}
 
