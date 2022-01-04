@@ -62,7 +62,7 @@ def _create_ownca_dir(ownca_dir):
     """
     try:
         if not os.path.isdir(ownca_dir):
-            os.mkdir(ownca_dir)
+            os.makedirs(ownca_dir)
 
     except (FileExistsError, OSError, FileNotFoundError) as err:
         raise err
@@ -106,7 +106,7 @@ def ownca_directory(ca_storage):
     }
 
     if not os.path.isdir(ca_storage):
-        os.mkdir(ca_storage)
+        os.makedirs(ca_storage)
 
     ownca_subdirs = [CA_CERTS_DIR, CA_PRIVATE_DIR]
     current_subdirs = glob(f"{ca_storage}/*")
