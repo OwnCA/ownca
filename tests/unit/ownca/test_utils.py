@@ -48,18 +48,6 @@ def test__create_ownca_dir(mock_os):
 
 
 @mock.patch("ownca.utils.os")
-def test__create_ownca_dir_case_exceptions(mock_os):
-
-    exceptions = [FileExistsError, OSError, FileNotFoundError]
-    mock_os.path.isdir.return_value = False
-    mock_os.mkdir.side_effect = exceptions
-
-    for exception in exceptions:
-        with pytest.raises(exception):
-            _create_ownca_dir("test_dir")
-
-
-@mock.patch("ownca.utils.os")
 @mock.patch("ownca.utils.glob")
 @mock.patch("ownca.utils._create_ownca_dir")
 def test_ownca_directory(mock__create_ownca_dir, mock_glob, mock_os):
