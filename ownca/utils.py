@@ -64,7 +64,7 @@ def _create_ownca_dir(ownca_dir):
         if not os.path.isdir(ownca_dir):
             os.makedirs(ownca_dir)
 
-    except (FileExistsError, OSError, FileNotFoundError) as err:
+    except (FileExistsError, OSError) as err:
         raise err
 
 
