@@ -124,6 +124,7 @@ def issue_cert(
     common_name=None,
     dns_names=None,
     host=False,
+    ca=True,
 ):
     """
     Issue a new certificate
@@ -146,6 +147,8 @@ def issue_cert(
     :type dns_names: list of strings.
     :param host: Issuing a host certificate.
     :type host: bool, default True.
+    :param ca: Certificate is CA or not.
+    :type ca: bool, default True.
 
     :return: certificate object
     :rtype: ``cryptography.x509.Certificate``
@@ -187,7 +190,7 @@ def issue_cert(
     builder = builder.public_key(pem_public_key)
 
     builder = builder.add_extension(
-        x509.BasicConstraints(ca=True, path_length=None), critical=True
+        x509.BasicConstraints(ca=ca, path_length=None), critical=True
     )
 
     certificate = builder.sign(
