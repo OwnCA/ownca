@@ -11,7 +11,11 @@ flake8 = "*"
 codecov = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
+twine = "*"
+mypy = "*"
+isort = "*"
 
 [packages]
 cryptography = "<35.0.0,>=3.4.6"
 voluptuous = "*"
+black = "==21.12b0"

@@ -1,41 +1,33 @@
 # -*- coding: utf-8 -*-
 """
-Copyright (c) 2019-2020 Kairo de Araujo
+Copyright (c) 2019-2022 Kairo de Araujo
 """
-import pytest
 from unittest import mock
 
-from ownca._constants import CA_CERTS_DIR, CA_PRIVATE_DIR
-from ownca.utils import (
-    file_data_status,
-    _create_ownca_dir,
-    ownca_directory,
-    store_file,
-    validate_hostname,
-)
+import pytest
 
-ca_status = {"key": True, "certificate": True}
+from ownca._constants import CA_CERTS_DIR, CA_PRIVATE_DIR
+from ownca.utils import (CAStatus, _create_ownca_dir, file_data_status,
+                         ownca_directory, store_file, validate_hostname)
+
+ca_status = CAStatus()
 
 
 def test_file_data_status():
-    ca_status["key"] = True
-    ca_status["certificate"] = True
+    ca_status.key = True
+    ca_status.certificate = True
     assert file_data_status(ca_status)
 
 
 def test_file_data_status_case_false():
-    ca_status["key"] = True
-    ca_status["certificate"] = True
-
-    assert file_data_status(ca_status)
-
-    ca_status["certificate"] = False
+    ca_status.key = True
+    ca_status.certificate = False
     assert file_data_status(ca_status) is False
 
 
 def test_file_data_status_case_none():
-    ca_status["key"] = False
-    ca_status["certificate"] = False
+    ca_status.key = False
+    ca_status.certificate = False
 
     assert file_data_status(ca_status) is None
 
@@ -71,15 +63,15 @@ def test_ownca_directory(mock__create_ownca_dir, mock_glob, mock_os):
     mock_glob.return_value = [CA_CERTS_DIR, CA_PRIVATE_DIR]
     mock__create_ownca_dir.return_value = True
 
-    assert ownca_directory("test_dir") == {
-        "ca_home": "test_dir",
-        "certificate": True,
-        "key": True,
-        "crl": True,
-        "csr": True,
-        "public_key": True,
-        "type": "Intermediate Certificate Authority"
-    }
+    assert ownca_directory("test_dir") == CAStatus(
+        ca_type_intermediate=True,
+        ca_home="test_dir",
+        certificate=True,
+        crl=True,
+        csr=True,
+        key=True,
+        public_key=True,
+    )
 
 
 @mock.patch("ownca.utils.os")
@@ -89,7 +81,7 @@ def test_store_file(mock_open, mock_os):
     mock_os.chmod.return_value = True
     mock_open.return_file = True
 
-    assert store_file(b"data", "test_dir", permission=0o600)
+    assert store_file(b"data", "test_dir", False, None)
 
 
 @mock.patch("ownca.utils.os")
@@ -99,7 +91,7 @@ def test_store_file_case_oserror(mock_open, mock_os):
     mock_open.side_effect = OSError
 
     with pytest.raises(OSError):
-        assert store_file(b"data", "test_dir")
+        assert store_file(b"data", "test_dir", False, 0o600)
 
 
 @mock.patch("ownca.utils.os")
@@ -109,7 +101,7 @@ def test_store_file_case_file_exists(mock_open, mock_os):
     mock_open.return_file = True
 
     with pytest.raises(FileExistsError):
-        assert store_file(b"data", "test_dir")
+        assert store_file(b"data", "test_dir", False, 0o600)
 
 
 def test_validate_hostname():
