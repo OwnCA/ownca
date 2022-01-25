@@ -71,8 +71,8 @@ def _create_ownca_dir(ownca_dir: str) -> None:
 
     :param ownca_dir: full path directory for ownca
     :type ownca_dir: string, required
-    :return: bool
-    :rtype: bool
+    :return: None
+    :rtype: None
     """
     try:
         if not os.path.isdir(ownca_dir):
