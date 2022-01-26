@@ -1,24 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2020,2021 Kairo de Araujo
+# Copyright 2020,2022 Kairo de Araujo
 #
 
+import pytest
 from cryptography import x509
 from cryptography.hazmat.primitives.asymmetric import rsa
-import pytest
 
 from ownca import CertificateAuthority
 from ownca.exceptions import OwnCAIntermediate
-from tests.integrations.conftest import (
-    CA_STORAGE,
-    CA_COMMON_NAME,
-    CA_OIDS,
-    CA_MAXIMUM_DAYS,
-    CA_DNS_NAMES,
-    clean_test,
-    ICA_STORAGE
-)
+from ownca.utils import CAStatus
+from tests.integrations.conftest import (CA_COMMON_NAME, CA_DNS_NAMES,
+                                         CA_MAXIMUM_DAYS, CA_OIDS, CA_STORAGE,
+                                         ICA_STORAGE, clean_test)
 
 
 def test_ca():
@@ -30,15 +25,15 @@ def test_ca():
         maximum_days=CA_MAXIMUM_DAYS,
     )
 
-    assert ca.status == {
-        "certificate": True,
-        "key": True,
-        "csr": False,
-        "crl": True,
-        "public_key": True,
-        "ca_home": CA_STORAGE,
-        "type": "Certificate Authority"
-    }
+    assert ca.status == CAStatus(
+        ca_type_intermediate=False,
+        ca_home="CA_test",
+        certificate=True,
+        crl=True,
+        csr=False,
+        key=True,
+        public_key=True,
+    )
 
     assert isinstance(ca.cert, x509.Certificate)
     assert isinstance(ca.key, rsa.RSAPrivateKeyWithSerialization)
@@ -161,24 +156,24 @@ def test_ica():
         common_name=CA_COMMON_NAME,
         ca_storage=ICA_STORAGE,
         maximum_days=CA_MAXIMUM_DAYS,
-        intermediate=True
+        intermediate=True,
     )
 
-    assert ca.status == {
-        "certificate": False,
-        "key": True,
-        "csr": True,
-        "crl": False,
-        "public_key": True,
-        "ca_home": ICA_STORAGE,
-        "type": "Intermediate Certificate Authority"
-    }
+    assert ca.status == CAStatus(
+        ca_type_intermediate=True,
+        ca_home="ICA_test",
+        certificate=False,
+        crl=False,
+        csr=True,
+        key=True,
+        public_key=True,
+    )
 
     with pytest.raises(OwnCAIntermediate) as err:
         ca.cert
         assert (
-            "Intermediate Certificate Authority has not a signed " +
-            "certificate file in CA Storage"
+            "Intermediate Certificate Authority has not a signed "
+            + "certificate file in CA Storage"
         ) in err.value
 
     assert isinstance(ca.key, rsa.RSAPrivateKeyWithSerialization)
@@ -239,13 +234,13 @@ def test_ca_sign_ica():
     with pytest.raises(OwnCAIntermediate) as err:
         ica.cert
         assert (
-            "Intermediate Certificate Authority has not a signed " +
-            "certificate file in CA Storage"
+            "Intermediate Certificate Authority has not a signed "
+            + "certificate file in CA Storage"
         ) in err.value
 
     ica_certificate = ca.sign_csr(ica.csr, ica.public_key)
 
-    with open(f"{ICA_STORAGE}/ca.crt", 'w') as ca_cert_file:
+    with open(f"{ICA_STORAGE}/ca.crt", "w") as ca_cert_file:
         ca_cert_file.write(ica_certificate.cert_bytes.decode())
         ca_cert_file.close()
 
@@ -259,5 +254,5 @@ def test_ca_sign_ica():
     assert isinstance(ca.cert, x509.Certificate)
     assert ca.type == "Certificate Authority"
     assert ica.type == "Intermediate Certificate Authority"
-    assert ica.cert.subject.rfc4514_string() == 'CN=ica.dev.ownca.org'
-    assert ica.cert.issuer.rfc4514_string() == 'CN=ownca.org'
+    assert ica.cert.subject.rfc4514_string() == "CN=ica.dev.ownca.org"
+    assert ica.cert.issuer.rfc4514_string() == "CN=ownca.org"

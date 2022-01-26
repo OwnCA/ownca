@@ -1,55 +1,34 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Copyright (c) 2018-2021 Kairo de Araujo
+Copyright (c) 2018-2022 Kairo de Araujo
 """
 
-from cryptography import x509
-from cryptography.hazmat.backends.openssl.rsa import (
-    _RSAPublicKey,
-    _RSAPrivateKey,
-)
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.backends.openssl.x509 import (
-    _CertificateRevocationList,
-    _RevokedCertificate
-)
-from cryptography.x509.oid import NameOID
 import datetime
 import os
 import re
-from voluptuous import Any, MultipleInvalid, Schema
 import warnings
 
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.backends.openssl.rsa import (_RSAPrivateKey,
+                                                      _RSAPublicKey)
+from cryptography.hazmat.backends.openssl.x509 import (
+    _CertificateRevocationList, _RevokedCertificate)
+from cryptography.hazmat.primitives import serialization
+from cryptography.x509.oid import NameOID
+from voluptuous import Any, MultipleInvalid, Schema
+
+from ._constants import (CA_CERT, CA_CERTS_DIR, CA_CRL, CA_CSR, CA_KEY,
+                         CA_PUBLIC_KEY, COUNTRY_REGEX, HOSTNAME_REGEX, OIDS)
 from .crypto import keys
-from .crypto.certs import issue_cert, issue_csr, ca_sign_csr, ca_crl
-from ._constants import (
-    CA_CERT,
-    CA_CERTS_DIR,
-    CA_CRL,
-    CA_CSR,
-    CA_KEY,
-    CA_PUBLIC_KEY,
-    COUNTRY_REGEX,
-    HOSTNAME_REGEX,
-    OIDS,
-)
-from .exceptions import (
-    OwnCAFatalError,
-    OwnCAInconsistentData,
-    OwnCAIntermediate,
-    OwnCAInvalidCertificate,
-    OnwCAInvalidDataStructure,
-    OwnCAInvalidFiles,
-    OwnCAInvalidOID,
-)
-from .utils import (
-    ownca_directory,
-    file_data_status,
-    validate_hostname,
-    store_file,
-)
+from .crypto.certs import ca_crl, ca_sign_csr, issue_cert, issue_csr
+from .exceptions import (OnwCAInvalidDataStructure, OwnCAFatalError,
+                         OwnCAInconsistentData, OwnCAIntermediate,
+                         OwnCAInvalidCertificate, OwnCAInvalidFiles,
+                         OwnCAInvalidOID)
+from .utils import (file_data_status, ownca_directory, store_file,
+                    validate_hostname)
 
 
 def _validate_owncacertdata(data):
@@ -86,33 +65,33 @@ def _validate_owncacertdata(data):
 
 class OwncaCertData(object):
     """
-     Generates Ownca Certificate Data Structure
+    Generates Ownca Certificate Data Structure
 
-     :param data: Certificate Data
+    :param data: Certificate Data
 
-        .. highlight:: python
-        .. code-block:: python
+       .. highlight:: python
+       .. code-block:: python
 
-         {
-            "cert": cryptography.x509.Certificate,
-            "cert_bytes": bytes,
-            "csr": ``cryptography.x509._CertificateSigningRequest``
-            "csr_bytes: bytes,
-            "key": cryptography.hazmat.backends.openssl.rsa._RSAPrivateKey,
-            "key_bytes": bytes,
-            "public_key":
-             cryptography.hazmat.backends.openssl.rsa._RSAPrivateKey,
-            "public_key_bytes": bytes,
-            "crl":
-             cryptography.hazmat.backends.openssl.rsa._RSAPublicKey,
-             "crl_bytes": bytes
-         }
-     :type data: dict
+        {
+           "cert": cryptography.x509.Certificate,
+           "cert_bytes": bytes,
+           "csr": ``cryptography.x509._CertificateSigningRequest``
+           "csr_bytes: bytes,
+           "key": cryptography.hazmat.backends.openssl.rsa._RSAPrivateKey,
+           "key_bytes": bytes,
+           "public_key":
+            cryptography.hazmat.backends.openssl.rsa._RSAPrivateKey,
+           "public_key_bytes": bytes,
+           "crl":
+            cryptography.hazmat.backends.openssl.rsa._RSAPublicKey,
+            "crl_bytes": bytes
+        }
+    :type data: dict
 
-     :return: OwncaCertData
-     :rtype: ``ownca.ownca.OwncaCertData``
-     :raises: ``exceptions.OnwCAInvalidDataStructure``
-     """
+    :return: OwncaCertData
+    :rtype: ``ownca.ownca.OwncaCertData``
+    :raises: ``exceptions.OnwCAInvalidDataStructure``
+    """
 
     def __init__(self, data):
         try:
@@ -310,8 +289,12 @@ def format_oids(oids_parameters):
 
 
 def load_cert_files(
-    common_name, key_file, public_key_file, csr_file, certificate_file,
-    crl_file
+    common_name,
+    key_file,
+    public_key_file,
+    csr_file,
+    certificate_file,
+    crl_file,
 ):
     """Loads the certificate, keys and revoked list files from storage
 
@@ -431,7 +414,7 @@ def load_cert_files(
             "public_key": public_key,
             "public_key_bytes": public_key_bytes,
             "crl": crl,
-            "crl_bytes": crl_bytes
+            "crl_bytes": crl_bytes,
         }
     )
 
@@ -468,8 +451,12 @@ class CertificateAuthority:
     """
 
     def __init__(
-        self, ca_storage=None, common_name=None, intermediate=False,
-        maximum_days=825, **kwargs
+        self,
+        ca_storage=None,
+        common_name=None,
+        intermediate=False,
+        maximum_days=825,
+        **kwargs,
     ):
         """Constructor method"""
 
@@ -559,7 +546,10 @@ class CertificateAuthority:
 
         :return: str
         """
-        return self.status.get("type")
+        if self.status.ca_type_intermediate is True:
+            return "Intermediate Certificate Authority"
+        else:
+            return "Certificate Authority"
 
     @property
     def crl(self):
@@ -612,12 +602,12 @@ class CertificateAuthority:
             ``cryptography.hazmat.backends.openssl.x509.Certificate``
         """
         if (
-            self._certificate is None and
-            self.type == "Intermediate Certificate Authority"
+            self._certificate is None
+            and self.type == "Intermediate Certificate Authority"
         ):
             raise OwnCAIntermediate(
-                "Intermediate Certificate Authority has not a signed " +
-                "certificate file in CA Storage"
+                "Intermediate Certificate Authority has not a signed "
+                + "certificate file in CA Storage"
             )
 
         return self._certificate
@@ -783,7 +773,7 @@ class CertificateAuthority:
                 public_key_file=public_ca_key_file,
                 csr_file=csr_file,
                 certificate_file=certificate_file,
-                crl_file=crl_file
+                crl_file=crl_file,
             )
 
             return cert_data
@@ -796,8 +786,8 @@ class CertificateAuthority:
                 public_exponent=public_exponent, key_size=key_size
             )
 
-            store_file(key.key_bytes, private_ca_key_file, permission=0o600)
-            store_file(key.public_key_bytes, public_ca_key_file)
+            store_file(key.key_bytes, private_ca_key_file, False, None)
+            store_file(key.public_key_bytes, public_ca_key_file, False, None)
 
             if intermediate is True:
                 csr = issue_csr(
@@ -810,7 +800,7 @@ class CertificateAuthority:
                     encoding=serialization.Encoding.PEM
                 )
 
-                store_file(csr_bytes, csr_file)
+                store_file(csr_bytes, csr_file, False, None)
 
                 cert_data = OwncaCertData(
                     {
@@ -823,7 +813,7 @@ class CertificateAuthority:
                         "public_key": key.public_key,
                         "public_key_bytes": key.public_key_bytes,
                         "crl": None,
-                        "crl_bytes": None
+                        "crl_bytes": None,
                     }
                 )
 
@@ -852,13 +842,13 @@ class CertificateAuthority:
                     encoding=serialization.Encoding.PEM
                 )
 
-                store_file(crl_bytes, crl_file)
+                store_file(crl_bytes, crl_file, False, None)
 
                 certificate_bytes = certificate.public_bytes(
                     encoding=serialization.Encoding.PEM
                 )
 
-                store_file(certificate_bytes, certificate_file)
+                store_file(certificate_bytes, certificate_file, False, None)
 
                 cert_data = OwncaCertData(
                     {
@@ -869,7 +859,7 @@ class CertificateAuthority:
                         "public_key": key.public_key,
                         "public_key_bytes": key.public_key_bytes,
                         "crl": crl,
-                        "crl_bytes": crl_bytes
+                        "crl_bytes": crl_bytes,
                     }
                 )
 
@@ -946,7 +936,7 @@ class CertificateAuthority:
                 public_key_file=host_public_path,
                 csr_file=host_csr_path,
                 certificate_file=host_cert_path,
-                crl_file=crl_file
+                crl_file=crl_file,
             )
 
         else:
@@ -955,8 +945,10 @@ class CertificateAuthority:
                 public_exponent=public_exponent, key_size=key_size
             )
 
-            store_file(key_data.key_bytes, host_key_path, permission=0o600)
-            store_file(key_data.public_key_bytes, host_public_path)
+            store_file(key_data.key_bytes, host_key_path, False, 0o600)
+            store_file(
+                key_data.public_key_bytes, host_public_path, False, None
+            )
 
             if oids:
                 oids = format_oids(oids)
@@ -974,6 +966,8 @@ class CertificateAuthority:
             store_file(
                 csr.public_bytes(encoding=serialization.Encoding.PEM),
                 host_csr_path,
+                False,
+                None,
             )
 
             certificate = ca_sign_csr(
@@ -987,7 +981,7 @@ class CertificateAuthority:
                 encoding=serialization.Encoding.PEM
             )
 
-            store_file(certificate_bytes, host_cert_path)
+            store_file(certificate_bytes, host_cert_path, False, None)
 
             cert_data = OwncaCertData(
                 {
@@ -998,7 +992,7 @@ class CertificateAuthority:
                     "public_key": key_data.public_key,
                     "public_key_bytes": key_data.public_key_bytes,
                     "crl": self.crl,
-                    "crl_bytes": self.crl_bytes
+                    "crl_bytes": self.crl_bytes,
                 }
             )
 
@@ -1067,14 +1061,15 @@ class CertificateAuthority:
             public_key_file=host_public_path,
             csr_file=host_csr_path,
             certificate_file=host_cert_path,
-            crl_file=crl_file
+            crl_file=crl_file,
         )
         certificates_revoke = [revoked for revoked in self.crl]
-        revoke_cert = x509.RevokedCertificateBuilder().serial_number(
-            cert_data.cert.serial_number
-        ).revocation_date(
-            datetime.datetime.today()
-        ).build(default_backend())
+        revoke_cert = (
+            x509.RevokedCertificateBuilder()
+            .serial_number(cert_data.cert.serial_number)
+            .revocation_date(datetime.datetime.today())
+            .build(default_backend())
+        )
 
         certificates_revoke.append(revoke_cert)
 
@@ -1082,12 +1077,10 @@ class CertificateAuthority:
             self.cert,
             ca_key=self.key,
             common_name=common_name,
-            certificates_revoke=certificates_revoke
+            certificates_revoke=certificates_revoke,
         )
 
-        crl_bytes = crl.public_bytes(
-            encoding=serialization.Encoding.PEM
-        )
+        crl_bytes = crl.public_bytes(encoding=serialization.Encoding.PEM)
 
         ca_cert = OwncaCertData(
             {
@@ -1098,11 +1091,11 @@ class CertificateAuthority:
                 "public_key": self.public_key,
                 "public_key_bytes": self.public_key_bytes,
                 "crl": crl,
-                "crl_bytes": crl_bytes
+                "crl_bytes": crl_bytes,
             }
         )
 
-        store_file(crl_bytes, crl_file, force=True)
+        store_file(crl_bytes, crl_file, True, None)
 
         self._update(ca_cert)
 
@@ -1130,19 +1123,15 @@ class CertificateAuthority:
             common_name = csr_subject[0].value
 
         csr_public_key_bytes = csr_public_key.public_bytes(
-            serialization.Encoding.OpenSSH,
-            serialization.PublicFormat.OpenSSH
+            serialization.Encoding.OpenSSH, serialization.PublicFormat.OpenSSH
         )
-        csr_bytes = csr.public_bytes(
-            encoding=serialization.Encoding.PEM
-        )
+        csr_bytes = csr.public_bytes(encoding=serialization.Encoding.PEM)
         host_cert_dir = os.path.join(
             self.ca_storage, CA_CERTS_DIR, common_name
         )
 
         certificate = ca_sign_csr(
-            self.cert, self.key, csr, csr_public_key,
-            maximum_days=maximum_days
+            self.cert, self.key, csr, csr_public_key, maximum_days=maximum_days
         )
 
         os.mkdir(host_cert_dir)
@@ -1150,14 +1139,14 @@ class CertificateAuthority:
         host_csr_path = os.path.join(host_cert_dir, f"{common_name}.csr")
         host_cert_path = os.path.join(host_cert_dir, f"{common_name}.crt")
 
-        store_file(csr_public_key_bytes, host_public_path)
+        store_file(csr_public_key_bytes, host_public_path, False, None)
 
         certificate_bytes = certificate.public_bytes(
             encoding=serialization.Encoding.PEM
         )
 
-        store_file(certificate_bytes, host_cert_path)
-        store_file(csr_bytes, host_csr_path)
+        store_file(certificate_bytes, host_cert_path, False, None)
+        store_file(csr_bytes, host_csr_path, False, None)
 
         cert_data = OwncaCertData(
             {
@@ -1168,7 +1157,7 @@ class CertificateAuthority:
                 "public_key": csr_public_key,
                 "public_key_bytes": csr_public_key_bytes,
                 "crl": self.crl,
-                "crl_bytes": self.crl_bytes
+                "crl_bytes": self.crl_bytes,
             }
         )
 
@@ -1212,10 +1201,11 @@ class HostCertificate:
         self._common_name = common_name
         self._files = files
         self.cert_data = cert_data
-        self._revoked = \
+        self._revoked = (
             self.cert_data.crl.get_revoked_certificate_by_serial_number(
                 self.cert_data.cert.serial_number
             )
+        )
 
     @property
     def cert(self):

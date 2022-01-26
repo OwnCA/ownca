@@ -1,49 +1,61 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Copyright (c) 2018-2021 Kairo de Araujo
+Copyright (c) 2018-2022 Kairo de Araujo
 """
-
-from glob import glob
+from dataclasses import dataclass
 import os
 import re
+from glob import glob
+from typing import Optional
 
 from ._constants import (
     CA_CERT,
     CA_CERTS_DIR,
-    CA_CSR,
     CA_CRL,
+    CA_CSR,
     CA_KEY,
-    CA_PUBLIC_KEY,
     CA_PRIVATE_DIR,
+    CA_PUBLIC_KEY,
     HOSTNAME_REGEX,
 )
 from .exceptions import OwnCAIntermediate
 
 
-def file_data_status(ca_status):
+@dataclass
+class CAStatus:
+    ca_type_intermediate: bool = False
+    ca_home: str = ""
+    certificate: bool = False
+    crl: bool = False
+    csr: bool = False
+    key: bool = False
+    public_key: bool = False
+
+
+def file_data_status(ca_status: CAStatus) -> Optional[bool]:
     """
     Verify the CA status based in the existent files.
 
     :param ca_status: current ``ca_status`` file dictionary:
         ``ownca.utils.ownca_directory``
-    :type ca_status: dict, required
+    :type ca_status: CAStatus, required
 
     :return: True, False or None
-    :rtype: bool/None
+    :rtype: bool or None
     """
-    key = ca_status.get("key")
-    cert = ca_status.get("certificate")
-    csr = ca_status.get("csr")
-
     # this check if the CA has the key and certificates files in disk
     # if both are true, means the health status is True
-    if key == cert and key is True:
+    if ca_status.key == ca_status.certificate and ca_status.key is True:
         return True
 
     # if certificate and key does not match and one of then are True, is not ok
-    elif key != cert and key or cert:
-        if csr:
+    elif (
+        ca_status.key != ca_status.certificate
+        and ca_status.key
+        or ca_status.certificate
+    ):
+        if ca_status.csr:
             raise OwnCAIntermediate("Intermediate CA Missing the certificate.")
 
         return False
@@ -53,12 +65,14 @@ def file_data_status(ca_status):
         return None
 
 
-def _create_ownca_dir(ownca_dir):
+def _create_ownca_dir(ownca_dir: str) -> None:
     """
     Creates the CA directory.
 
-    :param ownca_dir: :string: full path directory for ownca
-    :return: bool
+    :param ownca_dir: full path directory for ownca
+    :type ownca_dir: string, required
+    :return: None
+    :rtype: None
     """
     try:
         if not os.path.isdir(ownca_dir):
@@ -68,25 +82,14 @@ def _create_ownca_dir(ownca_dir):
         raise err
 
 
-def ownca_directory(ca_storage):
+def ownca_directory(ca_storage: str) -> CAStatus:
     """
     Validates and manage CA storage directory and subfolders structure files.
 
     :param ca_storage: CA storage
     :type ca_storage: string, required
     :return: dict with state of ownca storage files
-    :rtype: dict
-
-    .. highlight:: python
-    .. code-block:: python
-
-        {
-            "certificate": bool,
-            "crl": bool,
-            "key": bool,
-            "public_key": bool,
-            "ca_home": None or str,
-        }
+    :rtype: CAStatus
 
     """
     if "CA_test".lower() in ca_storage.lower() and not os.getenv("TEST_MODE"):
@@ -95,15 +98,7 @@ def ownca_directory(ca_storage):
             + "contains 'ca_test'"
         )
 
-    ownca_status = {
-        "type": "Certificate Authority",
-        "ca_home": None,
-        "certificate": False,
-        "crl": False,
-        "csr": False,
-        "key": False,
-        "public_key": False,
-    }
+    ownca_status = CAStatus()
 
     if not os.path.isdir(ca_storage):
         os.mkdir(ca_storage)
@@ -114,31 +109,36 @@ def ownca_directory(ca_storage):
     for ownca_subdir in ownca_subdirs:
         ca_storage_sub_dir = os.path.join(ca_storage, ownca_subdir)
         if ca_storage_sub_dir not in current_subdirs:
-            ownca_status["ca_home"] = "Inconsistent!"
+            ownca_status.ca_home = "Inconsistent!"
             _create_ownca_dir(ca_storage_sub_dir)
 
-    ownca_status["ca_home"] = ca_storage
+    ownca_status.ca_home = ca_storage
 
     if os.path.isfile(os.path.join(ca_storage, CA_CERT)):
-        ownca_status["certificate"] = True
+        ownca_status.certificate = True
 
     if os.path.isfile(os.path.join(ca_storage, CA_CSR)):
-        ownca_status["csr"] = True
-        ownca_status["type"] = "Intermediate Certificate Authority"
+        ownca_status.csr = True
+        ownca_status.ca_type_intermediate = True
 
     if os.path.isfile(os.path.join(ca_storage, CA_CRL)):
-        ownca_status["crl"] = True
+        ownca_status.crl = True
 
     if os.path.isfile(os.path.join(ca_storage, CA_KEY)):
-        ownca_status["key"] = True
+        ownca_status.key = True
 
     if os.path.isfile(os.path.join(ca_storage, CA_PUBLIC_KEY)):
-        ownca_status["public_key"] = True
+        ownca_status.public_key = True
 
     return ownca_status
 
 
-def store_file(file_data, file_path, permission=None, force=False):
+def store_file(
+    file_data: bytes,
+    file_path: str,
+    force: bool,
+    permission: Optional[int],
+) -> bool:
     """
     Stores (write) files in the storage
 
@@ -167,7 +167,7 @@ def store_file(file_data, file_path, permission=None, force=False):
     return True
 
 
-def validate_hostname(hostname):
+def validate_hostname(hostname: str) -> bool:
     """
     Validates if the hostname follows the common Internet rules for FQDN
 
