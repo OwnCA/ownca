@@ -200,7 +200,7 @@ def issue_cert(
     return _valid_cert(certificate)
 
 
-def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
+def issue_csr(key=None, common_name=None, dns_names=None, oids=None, ca=True):
     """
     Issue a new CSR (Certificate Signing Request)
 
@@ -213,6 +213,8 @@ def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
     :param oids: list of OID Objects (``cryptography.x509.oid.NameOID``)
         or None. See ``ownca.format_oids``.
     :type oids: list, required.
+    :param ca: Certificate is CA or not.
+    :type ca: bool, default True.
 
     :return: certificate sigining request object
     :rtype: ``cryptography.x509.CertificateSigningRequest``
@@ -228,7 +230,7 @@ def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
     )
 
     csr_builder = csr_builder.add_extension(
-        x509.BasicConstraints(ca=True, path_length=None), critical=False
+        x509.BasicConstraints(ca=ca, path_length=None), critical=False
     )
     csr = csr_builder.sign(
         private_key=key, algorithm=hashes.SHA256(), backend=default_backend()
@@ -237,7 +239,7 @@ def issue_csr(key=None, common_name=None, dns_names=None, oids=None):
     return _valid_csr(csr)
 
 
-def ca_sign_csr(ca_cert, ca_key, csr, public_key, maximum_days=None):
+def ca_sign_csr(ca_cert, ca_key, csr, public_key, maximum_days=None, ca=True):
     """
     Sign a Certificate Signing Request
 
@@ -250,6 +252,8 @@ def ca_sign_csr(ca_cert, ca_key, csr, public_key, maximum_days=None):
     :param key: key object ``cryptography.hazmat.backends.openssl.rsa``
     :param maximum_days: number of maximum days of certificate (expiration)
     :type maximum_days: int, required, min 1 max 825.
+    :param ca: Certificate is CA or not.
+    :type ca: bool, default True.
 
     :return: certificate object
     :rtype: ``cryptography.x509.Certificate``
@@ -285,7 +289,7 @@ def ca_sign_csr(ca_cert, ca_key, csr, public_key, maximum_days=None):
         critical=True,
     )
     certificate = certificate.add_extension(
-        x509.BasicConstraints(ca=True, path_length=None),
+        x509.BasicConstraints(ca=ca, path_length=None),
         critical=True,
     )
     certificate = certificate.add_extension(

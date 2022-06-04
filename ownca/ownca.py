@@ -877,6 +877,7 @@ class CertificateAuthority:
         oids=None,
         public_exponent=65537,
         key_size=2048,
+        ca=True,
     ):
         """
         Issues a new certificate signed by the CA
@@ -904,6 +905,9 @@ class CertificateAuthority:
         :type public_exponent: int, default: 65537
         :param key_size: Key size
         :type key_size: int, default: 2048
+        :param ca: Certificate is CA or not.
+        :type ca: bool, default True.
+
         :return: host object
         :rtype: ``ownca.ownca.HostCertificate``
         """
@@ -961,6 +965,7 @@ class CertificateAuthority:
                 common_name=common_name,
                 dns_names=dns_names,
                 oids=oids,
+                ca=ca,
             )
 
             store_file(
@@ -976,6 +981,7 @@ class CertificateAuthority:
                 csr,
                 key_data.public_key,
                 maximum_days=maximum_days,
+                ca=ca,
             )
             certificate_bytes = certificate.public_bytes(
                 encoding=serialization.Encoding.PEM
