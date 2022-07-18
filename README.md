@@ -5,26 +5,26 @@
 [![pypi Downloads](https://img.shields.io/pypi/dm/ownca)](https://pypistats.org/packages/ownca)
 [![pypi](https://img.shields.io/pypi/l/ownca.svg)](https://pypi.python.org/pypi/ownca)
 
-Python Own Certificate Authority (ownca)
+Python Own Certificate Authority (OwnCA)
 ========================================
 
-OwnCA makes easy handle Certificate Authority (CA) and manage certificates
+OwnCA makes it easy to handle a Certificate Authority (CA) and manage certificates
 for hosts, servers or clients.
 
-An example of high level usage:
+An example of high-level usage:
 
 ```pycon
->>> from ownca import CertificateAuthority
->>> ca = CertificateAuthority(ca_storage='/opt/CA', common_name='MyCorp CA')
->>> example_com = ca.issue_certificate('www.example.com', dns_names=['www.example.com', 'w3.example.com')
+from ownca import CertificateAuthority
+ca = CertificateAuthority(ca_storage='/opt/CA', common_name='Corp CA')
+example_com = ca.issue_certificate('www.example.com', dns_names=['www.example.com', 'w3.example.com'])
 ```
 
-Basically in this three lines steps:
+Basically, in these three lines we:
  1. Imported the ownca Certificate Authority library
- 2. Created a new CA named as *Corp CA* that uses ```/opt/CA``` as CA storage
-    for certificates, keys etc.
- 3. Create a signed certificate by *Corp CA* server *www.mycorp.com*,
- the files are also stored in ```/opt/CA/certs/www.example.com```.
+ 2. Created a new CA named *Corp CA* that uses ```/opt/CA``` as CA storage
+ for certificates, keys, etc.
+ 3. Created a signed certificate by *Corp CA* for *www.example.com*,
+ whose files are also stored in ```/opt/CA/certs/www.example.com```
 
     ```pycon
      >>> example_com.cert
@@ -32,7 +32,7 @@ Basically in this three lines steps:
     ```
 
 More detailed usage can be found in [http://ownca.readthedocs.org](
-http://ownca.readthedocs.org)
+http://ownca.readthedocs.org).
 
 
 Installation
@@ -50,19 +50,19 @@ Visit [http://ownca.readthedocs.org](http://ownca.readthedocs.org)
 Development
 ===========
 
-Preparing environment
+Preparing the environment
 ---------------------
 
 ```shell
-$ git clone git@github.com:OwnCA/ownca.git
-$ cd ownca
-$ pipenv shell
-$ pipenv install -d
+git clone git@github.com:OwnCA/ownca.git
+cd ownca
+pipenv shell
+pipenv install -d
 ```
 
-Case you have macOS M1
+In case you have macOS M1:
 
 ```shell
-$ pip uninstall cryptography cffi
-$ LDFLAGS=-L$(brew --prefix libffi)/lib CFLAGS=-I$(brew --prefix libffi)/include pip install cffi cryptography rust --no-binary :all:
+pip uninstall cryptography cffi
+LDFLAGS=-L$(brew --prefix libffi)/lib CFLAGS=-I$(brew --prefix libffi)/include pip install cffi cryptography rust --no-binary :all:
 ```
