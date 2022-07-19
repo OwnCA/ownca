@@ -14,9 +14,9 @@ for hosts, servers or clients.
 An example of high-level usage:
 
 ```pycon
-from ownca import CertificateAuthority
-ca = CertificateAuthority(ca_storage='/opt/CA', common_name='Corp CA')
-example_com = ca.issue_certificate('www.example.com', dns_names=['www.example.com', 'w3.example.com'])
+>>> from ownca import CertificateAuthority
+>>> ca = CertificateAuthority(ca_storage='/opt/CA', common_name='Corp CA')
+>>> example_com = ca.issue_certificate('www.example.com', dns_names=['www.example.com', 'w3.example.com'])
 ```
 
 Basically, in these three lines we:
