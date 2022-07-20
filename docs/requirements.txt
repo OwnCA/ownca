@@ -1,4 +1,7 @@
 -i https://pypi.org/simple
+cryptography==3.4.8
+voluptuous==0.12.2
+
 alabaster==0.7.12
 babel==2.10.3; python_version >= '3.6'
 certifi==2022.6.15; python_version >= '3.6'
