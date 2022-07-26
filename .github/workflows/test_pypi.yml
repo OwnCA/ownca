@@ -17,8 +17,11 @@ jobs:
       with:
         python-version: '3.9'
 
+    - name: Install requirements
+      run: python -m pip install build
+
     - name: Build the distribution
-      run: python setup.py sdist
+      run: python -m build
 
     - name: Publish distribution 📦 to Test PyPI
       uses: pypa/gh-action-pypi-publish@master

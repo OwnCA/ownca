@@ -1,0 +1,70 @@
+[build-system]
+# Minimum requirements for the build system to execute.
+requires = ["setuptools", "wheel"] # PEP 508 specifications.
+build-backend = "setuptools.build_meta"
+
+[project]
+# https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
+# the only field required to be statically defined
+name = "OwnCA"
+dynamic = ["version"]
+description = "Python Own Certificate Authority"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "Apache 2.0"}
+keywords = ["ownca", "Certificate Authority", "CA", "certificates"]
+authors = [
+  {email = "kairo@dearaujo.nl"},
+  {name = "Kairo de Araujo"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+dependencies = [
+  "cryptography<35.0.0,>=3.4.6",
+  "voluptuous>=0.11.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "coverage==5.1",
+    "tox",
+    "flake8",
+    "codecov",
+    "sphinx",
+    "sphinx-rtd-theme",
+    "twine",
+    "mypy",
+    "isort",
+    "black==21.12b0",
+]
+
+[project.urls]
+documentation = "https://ownca.readthedocs.io"
+repository = "https://github.com/OwnCA/ownca"
+
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html#setuptools-specific-configuration
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+license-files = ["LICENSE"]
+
+[tool.setuptools.packages.find]
+include = ["ownca*"]  # package names should match these glob patterns (["*"] by default)
+# files excluded in .whl but still there in .tar.gz
+exclude = ["tests*"]  # exclude packages matching these glob patterns (empty by default)
+
+[tool.setuptools.dynamic]
+version = {attr = "ownca.__version__.__version__"}
