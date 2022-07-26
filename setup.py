@@ -1,9 +1,10 @@
+#!/usr/bin/env python
+
 # pip still might require a setup.py file to support ...
 # editable installs (PEP 660)
 # https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
 # keep this file until it does
 
-#!/usr/bin/env python
 import os
 import sys
 from codecs import open
