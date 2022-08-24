@@ -14,7 +14,7 @@ t.py
 cover/
 build/
 docs/_build
-onwca.egg-info/
+ownca.egg-info/
 *.pyc
 *.swp
 *.egg
@@ -31,7 +31,7 @@ t2.py
 dist
 /.mypy_cache/
 htmlcov/
-ownca.egg-info/
+Ownca.egg-info/
 .DS_Store
 CA_test*
 ICA_test*

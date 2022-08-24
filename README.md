@@ -70,9 +70,8 @@ LDFLAGS=-L$(brew --prefix libffi)/lib CFLAGS=-I$(brew --prefix libffi)/include p
 Installing & enabling pre-commit
 ---------------------
 
-To automatically run checks before you commit your changes you should install and run **pre-commit**:
+To automatically run checks before you commit your changes you should install the git hook scripts with **pre-commit**:
 ```shell
-pip install pre-commit
 pre-commit install
 pre-commit autoupdate
 ```

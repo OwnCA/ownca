@@ -7,7 +7,7 @@ verify_ssl = true
 pytest = "*"
 coverage = "==5.1"
 tox = "*"
-flake8 = "*"
+flake8 = "==3.9.2"
 codecov = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
@@ -15,6 +15,7 @@ twine = "*"
 mypy = "*"
 isort = "*"
 black = "==21.12b0"
+pre-commit = "*"
 
 [packages]
 cryptography = "<35.0.0,>=3.4.6"
