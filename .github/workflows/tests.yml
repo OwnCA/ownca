@@ -30,7 +30,7 @@ jobs:
         name: coverage
         fail_ci_if_error: true
 
-    - name: Install docs dependecies
+    - name: Install docs dependencies
       run: pip install -r docs/requirements.txt
 
     - name: Run Docs tests

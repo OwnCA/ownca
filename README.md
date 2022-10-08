@@ -66,3 +66,12 @@ In case you have macOS M1:
 pip uninstall cryptography cffi
 LDFLAGS=-L$(brew --prefix libffi)/lib CFLAGS=-I$(brew --prefix libffi)/include pip install cffi cryptography rust --no-binary :all:
 ```
+
+Installing & enabling pre-commit
+---------------------
+
+To automatically run checks before you commit your changes you should install the git hook scripts with **pre-commit**:
+```shell
+pre-commit install
+pre-commit autoupdate
+```

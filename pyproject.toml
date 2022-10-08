@@ -49,6 +49,7 @@ dev = [
     "mypy",
     "isort",
     "black==21.12b0",
+    "pre-commit",
 ]
 
 [project.urls]
