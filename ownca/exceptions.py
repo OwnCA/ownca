@@ -28,7 +28,7 @@ class OwnCAInvalidOID(Exception):
     pass
 
 
-class OnwCAInvalidDataStructure(Exception):
+class OwnCAInvalidDataStructure(Exception):
     """Invalid Ownca Data Structure."""
 
     pass

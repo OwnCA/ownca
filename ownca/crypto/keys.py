@@ -13,7 +13,7 @@ from cryptography.hazmat.backends.openssl.rsa import (
 )
 from voluptuous import Schema, MultipleInvalid
 
-from ownca.exceptions import OnwCAInvalidDataStructure
+from ownca.exceptions import OwnCAInvalidDataStructure
 
 
 def _validate_owncakeydata(key_data):
@@ -30,7 +30,7 @@ def _validate_owncakeydata(key_data):
         key_schema(key_data)
 
     except MultipleInvalid as err:
-        raise OnwCAInvalidDataStructure("OwncaKeyData: " + str(err))
+        raise OwnCAInvalidDataStructure("OwncaKeyData: " + str(err))
 
 
 class OwncaKeyData(object):
@@ -53,13 +53,13 @@ class OwncaKeyData(object):
 
      :return: OwncaKeyData
      :rtype: ``ownca.crypto.keys.OwncaKeyData``
-     :raises: ``OnwCAInvalidDataStructure``
+     :raises: ``OwnCAInvalidDataStructure``
      """
     def __init__(self, key_data):
         try:
             _validate_owncakeydata(key_data)
 
-        except OnwCAInvalidDataStructure as err:
+        except OwnCAInvalidDataStructure as err:
             raise err
 
         self.__dict__ = key_data

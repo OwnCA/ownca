@@ -23,7 +23,7 @@ from ._constants import (CA_CERT, CA_CERTS_DIR, CA_CRL, CA_CSR, CA_KEY,
                          CA_PUBLIC_KEY, COUNTRY_REGEX, HOSTNAME_REGEX, OIDS)
 from .crypto import keys
 from .crypto.certs import ca_crl, ca_sign_csr, issue_cert, issue_csr
-from .exceptions import (OnwCAInvalidDataStructure, OwnCAFatalError,
+from .exceptions import (OwnCAInvalidDataStructure, OwnCAFatalError,
                          OwnCAInconsistentData, OwnCAIntermediate,
                          OwnCAInvalidCertificate, OwnCAInvalidFiles,
                          OwnCAInvalidOID)
@@ -38,7 +38,7 @@ def _validate_owncacertdata(data):
     :param data: Certificate data
     :type data: dict
     :return : None
-    :raises: ``exceptions.OnwCAInvalidDataStructure``
+    :raises: ``exceptions.OwnCAInvalidDataStructure``
 
     """
     cert_schema = Schema(
@@ -60,7 +60,7 @@ def _validate_owncacertdata(data):
         cert_schema(data)
 
     except MultipleInvalid as err:
-        raise OnwCAInvalidDataStructure("OnwcaKeyData :" + str(err))
+        raise OwnCAInvalidDataStructure("OwncaKeyData :" + str(err))
 
 
 class OwncaCertData(object):
@@ -90,14 +90,14 @@ class OwncaCertData(object):
 
     :return: OwncaCertData
     :rtype: ``ownca.ownca.OwncaCertData``
-    :raises: ``exceptions.OnwCAInvalidDataStructure``
+    :raises: ``exceptions.OwnCAInvalidDataStructure``
     """
 
     def __init__(self, data):
         try:
             _validate_owncacertdata(data)
 
-        except OnwCAInvalidDataStructure as err:
+        except OwnCAInvalidDataStructure as err:
             raise err
 
         self.__dict__ = data

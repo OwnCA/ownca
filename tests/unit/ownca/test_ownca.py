@@ -17,7 +17,7 @@ from ownca.exceptions import (
     OwnCAInvalidOID,
     OwnCAInvalidFiles,
     OwnCAInconsistentData,
-    OnwCAInvalidDataStructure,
+    OwnCAInvalidDataStructure,
     OwnCAFatalError,
 )
 
@@ -53,7 +53,7 @@ def test__validate_owncacertdata_exception(mock_Schema):
     mocked_schema.side_effect = MultipleInvalid("x")
     mock_Schema.return_value = mocked_schema
 
-    with pytest.raises(OnwCAInvalidDataStructure) as err:
+    with pytest.raises(OwnCAInvalidDataStructure) as err:
         _validate_owncacertdata(
             {
                 "cert": "cert",
@@ -65,7 +65,7 @@ def test__validate_owncacertdata_exception(mock_Schema):
             }
         )
 
-        assert "OnwcaKeyData: " in err.value
+        assert "OwncaKeyData: " in err.value
 
 
 @mock.patch("ownca.ownca._validate_owncacertdata")
@@ -95,9 +95,9 @@ def test_owncacertdata(mock__validate_owncacertdata):
 @mock.patch("ownca.ownca._validate_owncacertdata")
 def test_owncacertdata_exception(mock__validate_owncacertdata):
 
-    mock__validate_owncacertdata.side_effect = OnwCAInvalidDataStructure
+    mock__validate_owncacertdata.side_effect = OwnCAInvalidDataStructure
 
-    with pytest.raises(OnwCAInvalidDataStructure) as err:
+    with pytest.raises(OwnCAInvalidDataStructure) as err:
         OwncaCertData(
             {
                 "cert": "cert",
