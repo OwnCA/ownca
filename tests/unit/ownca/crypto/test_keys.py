@@ -5,7 +5,7 @@ Copyright (c) 2020 Kairo de Araujo
 import pytest
 from unittest import mock
 from voluptuous import MultipleInvalid
-from ownca.exceptions import OnwCAInvalidDataStructure
+from ownca.exceptions import OwnCAInvalidDataStructure
 from ownca.crypto.keys import (
     _validate_owncakeydata,
     _get_public_key,
@@ -41,7 +41,7 @@ def test__validate_owncakeydata_exception(mock_Schema):
     mocked_schema.side_effect = MultipleInvalid("x")
     mock_Schema.return_value = mocked_schema
 
-    with pytest.raises(OnwCAInvalidDataStructure) as err:
+    with pytest.raises(OwnCAInvalidDataStructure) as err:
         _validate_owncakeydata(
             {
                 "key": "key",
@@ -51,7 +51,7 @@ def test__validate_owncakeydata_exception(mock_Schema):
             }
         )
 
-        assert "OnwcaKeyData: " in err.value
+        assert "OwncaKeyData: " in err.value
 
 
 @mock.patch("ownca.crypto.keys._validate_owncakeydata")
@@ -77,9 +77,9 @@ def test_owncakeydata(mock__validate_owncakeydata):
 @mock.patch("ownca.crypto.keys._validate_owncakeydata")
 def test_owncakeydata_exception(mock__validate_owncakeydata):
 
-    mock__validate_owncakeydata.side_effect = OnwCAInvalidDataStructure
+    mock__validate_owncakeydata.side_effect = OwnCAInvalidDataStructure
 
-    with pytest.raises(OnwCAInvalidDataStructure) as err:
+    with pytest.raises(OwnCAInvalidDataStructure) as err:
         OwncaKeyData(
             {
                 "key": "key",
