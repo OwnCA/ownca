@@ -122,15 +122,19 @@ def test_issue_csr_with_dns_names(
 
     assert isinstance(csr, classmethod)
 
+
 @mock.patch("ownca.crypto.certs._valid_csr")
 @mock.patch("ownca.crypto.certs.x509")
-def test_issue_csr_ca_false(mock_x509, mock__valid_csr, oids_sample, fake_certificate):
+def test_issue_csr_ca_false(
+    mock_x509, mock__valid_csr, oids_sample, fake_certificate
+):
     mock_x509.NameAttribute.return_value = oids_sample
     mock__valid_csr.return_value = fake_certificate
 
     csr = issue_csr(oids=["OID"], ca=False)
 
     assert isinstance(csr, classmethod)
+
 
 @mock.patch("ownca.crypto.certs._valid_csr")
 @mock.patch("ownca.crypto.certs.x509")
