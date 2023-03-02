@@ -51,7 +51,7 @@ Development
 ===========
 
 Preparing the environment
----------------------
+-------------------------
 
 ```shell
 git clone git@github.com:OwnCA/ownca.git
@@ -68,7 +68,7 @@ LDFLAGS=-L$(brew --prefix libffi)/lib CFLAGS=-I$(brew --prefix libffi)/include p
 ```
 
 Installing & enabling pre-commit
----------------------
+--------------------------------
 
 To automatically run checks before you commit your changes you should install the git hook scripts with **pre-commit**:
 ```shell

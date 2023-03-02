@@ -23,6 +23,16 @@ py39-tests:
 	coverage xml -i
 	coverage html -i
 
+py310-tests:
+	tox -re py310,pep8
+	coverage xml -i
+	coverage html -i
+
+py311-tests:
+	tox -re py311,pep8
+	coverage xml -i
+	coverage html -i
+
 integration-tests:
 	tox -re integrations
 
