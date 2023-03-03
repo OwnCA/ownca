@@ -8,11 +8,6 @@ all-tests:
 	coverage xml -i
 	coverage html -i
 
-py37-tests:
-	tox -re py37,pep8
-	coverage xml -i
-	coverage html -i
-
 py38-tests:
 	tox -re py38,pep8
 	coverage xml -i
