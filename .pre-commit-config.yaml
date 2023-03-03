@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
     -   id: check-added-large-files
     -   id: end-of-file-fixer
@@ -10,7 +10,7 @@ repos:
     -   id: check-yaml
         files: '.github/'
 -   repo: https://github.com/pycqa/flake8
-    rev: '4.0.1'
+    rev: '6.0.0'
     hooks:
     -   id: flake8
         exclude: ownca/__init__.py|venv|.venv|setting.py|.git|.tox|dist|docs|/*lib/python*|/*egg|build|tools
