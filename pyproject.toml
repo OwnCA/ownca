@@ -10,7 +10,7 @@ name = "OwnCA"
 dynamic = ["version"]
 description = "Python Own Certificate Authority"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = {text = "Apache 2.0"}
 keywords = ["ownca", "Certificate Authority", "CA", "certificates"]
 authors = [
@@ -23,7 +23,6 @@ classifiers = [
     "Natural Language :: English",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
