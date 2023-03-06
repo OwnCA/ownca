@@ -5,16 +5,16 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
-coverage = "==5.1"
+coverage = "*"
 tox = "*"
-flake8 = "==3.9.2"
+flake8 = "*"
 codecov = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
 twine = "*"
 mypy = "*"
 isort = "*"
-black = "==21.12b0"
+black = "*"
 pre-commit = "*"
 
 [packages]
