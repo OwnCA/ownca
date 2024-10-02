@@ -1,5 +1,5 @@
 -i https://pypi.org/simple
-cryptography==3.4.8
+cryptography==39.0.1
 voluptuous==0.12.2
 
 alabaster==0.7.12
